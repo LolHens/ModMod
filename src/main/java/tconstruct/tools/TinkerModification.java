@@ -30,6 +30,7 @@ public class TinkerModification {
         ModifyBuilder.registerModifier(new ModRange(new ItemStack[]{new ItemStack(Items.ender_eye), new ItemStack(TinkerArmor.diamondApple)}));
         ModifyBuilder.registerModifier(new ModDepth(new ItemStack[]{new ItemStack(Items.ender_eye), new ItemStack(Items.golden_apple, 1, 1)}));
         ModifyBuilder.registerModifier(new ModConvenient(new ItemStack[]{new ItemStack(Items.apple), new ItemStack(Items.golden_apple), new ItemStack(TinkerArmor.diamondApple)}));
+        ModifyBuilder.registerModifier(new ModFlightSpeed(new ItemStack[]{new ItemStack(Items.slime_ball)}));
 
         ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{new ItemStack(Blocks.dragon_egg), new ItemStack(Items.diamond), new ItemStack(Blocks.gold_block)}, "Tier3Free"));
         ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{new ItemStack(Blocks.dragon_egg), new ItemStack(Blocks.diamond_block), new ItemStack(Items.golden_apple, 1, 1)}, "Tier3.5Free"));

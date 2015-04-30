@@ -22,8 +22,10 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.VillagerRegistry;
 import cpw.mods.fml.relauncher.Side;
+
 import java.util.Map;
 import java.util.Random;
+
 import mantle.pulsar.config.ForgeCFG;
 import mantle.pulsar.control.PulseManager;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
@@ -106,7 +108,7 @@ public class TConstruct {
     public static Detailing chiselDetailing;
 
     public TConstruct() {
-        if(Loader.isModLoaded("Natura")) {
+        if (Loader.isModLoaded("Natura")) {
             logger.info("Natura, what are we going to do tomorrow night?");
             LogManager.getLogger("Natura").info("TConstruct, we\'re going to take over the world!");
         } else {
@@ -157,13 +159,13 @@ public class TConstruct {
         MinecraftForge.EVENT_BUS.register(playerTracker);
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
         pulsar.preInit(event);
-        if(PHConstruct.achievementsEnabled) {
+        if (PHConstruct.achievementsEnabled) {
             TAchievements.addDefaultAchievements();
         }
 
-        if(PHConstruct.addToVillages) {
+        if (PHConstruct.addToVillages) {
             VillagerRegistry.instance().registerVillagerId(78943);
-            if(PHConstruct.allowVillagerTrading) {
+            if (PHConstruct.allowVillagerTrading) {
                 VillagerRegistry.instance().registerVillageTradeHandler(78943, new TVillageTrades());
             }
 
@@ -179,7 +181,7 @@ public class TConstruct {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         packetPipeline.initalise();
-        if(event.getSide() == Side.CLIENT) {
+        if (event.getSide() == Side.CLIENT) {
             ;
         }
 
@@ -195,7 +197,7 @@ public class TConstruct {
         SpecialStackHandler.registerBuiltInStackHandlers();
         proxy.initialize();
         pulsar.postInit(event);
-        if(PHConstruct.achievementsEnabled) {
+        if (PHConstruct.achievementsEnabled) {
             TAchievements.registerAchievementPane();
             MinecraftForge.EVENT_BUS.register(new AchievementEvents());
         }
