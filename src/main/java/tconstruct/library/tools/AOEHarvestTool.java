@@ -38,29 +38,55 @@ public abstract class AOEHarvestTool extends HarvestTool {
                     int depthIncrease = ModDepth.getDepthIncrease(stack);
 
                     int sideHit = mop.sideHit;
-                    int xRange = this.breakRadius + radiusIncrease;
-                    int yRange = this.breakRadius + radiusIncrease;
-                    int zRange = this.breakDepth + depthIncrease;
+
+                    int xRangePos = this.breakRadius + radiusIncrease;
+                    int xRangeNeg = this.breakRadius + radiusIncrease;
+                    int yRangePos = this.breakRadius + radiusIncrease;
+                    int yRangeNeg = this.breakRadius + radiusIncrease;
+                    int zRangePos = this.breakDepth + depthIncrease;
+                    int zRangeNeg = this.breakDepth + depthIncrease;
+
                     switch (sideHit) {
                         case 0:
+                            yRangePos = this.breakDepth + depthIncrease;
+                            yRangeNeg = this.breakDepth;
+                            zRangePos = this.breakRadius + radiusIncrease;
+                            zRangeNeg = this.breakRadius + radiusIncrease;
+                            break;
                         case 1:
-                            yRange = this.breakDepth + depthIncrease;
-                            zRange = this.breakRadius + radiusIncrease;
+                            yRangePos = this.breakDepth;
+                            yRangeNeg = this.breakDepth + depthIncrease;
+                            zRangePos = this.breakRadius + radiusIncrease;
+                            zRangeNeg = this.breakRadius + radiusIncrease;
                             break;
                         case 2:
+                            xRangePos = this.breakRadius + radiusIncrease;
+                            xRangeNeg = this.breakRadius + radiusIncrease;
+                            zRangePos = this.breakDepth + depthIncrease;
+                            zRangeNeg = this.breakDepth;
+                            break;
                         case 3:
-                            xRange = this.breakRadius + radiusIncrease;
-                            zRange = this.breakDepth + depthIncrease;
+                            xRangePos = this.breakRadius + radiusIncrease;
+                            xRangeNeg = this.breakRadius + radiusIncrease;
+                            zRangePos = this.breakDepth;
+                            zRangeNeg = this.breakDepth + depthIncrease;
                             break;
                         case 4:
+                            xRangePos = this.breakDepth + depthIncrease;
+                            xRangeNeg = this.breakDepth;
+                            zRangePos = this.breakRadius + radiusIncrease;
+                            zRangeNeg = this.breakRadius + radiusIncrease;
+                            break;
                         case 5:
-                            xRange = this.breakDepth + depthIncrease;
-                            zRange = this.breakRadius + radiusIncrease;
+                            xRangePos = this.breakDepth;
+                            xRangeNeg = this.breakDepth + depthIncrease;
+                            zRangePos = this.breakRadius + radiusIncrease;
+                            zRangeNeg = this.breakRadius + radiusIncrease;
                     }
 
-                    for (int xPos = x - xRange; xPos <= x + xRange; ++xPos) {
-                        for (int yPos = y - yRange; yPos <= y + yRange; ++yPos) {
-                            for (int zPos = z - zRange; zPos <= z + zRange; ++zPos) {
+                    for (int xPos = x - xRangeNeg; xPos <= x + xRangePos; ++xPos) {
+                        for (int yPos = y - yRangeNeg; yPos <= y + yRangePos; ++yPos) {
+                            for (int zPos = z - zRangeNeg; zPos <= z + zRangePos; ++zPos) {
                                 if ((xPos != x || yPos != y || zPos != z) && !super.onBlockStartBreak(stack, xPos, yPos, zPos, player)) {
                                     this.breakExtraBlock(player.worldObj, xPos, yPos, zPos, sideHit, player, x, y, z);
                                 }
