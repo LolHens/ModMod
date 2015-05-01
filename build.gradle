@@ -37,6 +37,7 @@ repositories {
 
 dependencies {
     compile files("Thaumcraft-1.7.10-4.2.3.5_deobf.jar")
+    compile files("Baubles-deobf-1.7.10-1.0.1.10.jar")
     compile files("TConstruct-1.7.10-1.8.3b_deobf.jar")
     compile files("CoFHCore-[1.7.10]3.0.0RC7-211_deobf.jar")
     compile files("1.7.10-Battlegear-Bin-1.0.5.6_deobf.jar")
