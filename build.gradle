@@ -44,7 +44,8 @@ dependencies {
     compile files("1.7.10-zeldaswordskills-2.2.5.c_deobf.jar")
     compile files("1.7.10-dynamicswordskills-1.6.5-deobf.jar")
     compile files("Mantle-1.7.10-0.3.2_deobf.jar")
-    compile files("ThaumicTinkerer-2.5-1.7.10-471_deobf.jar")
+    compile files("ThaumicTinkerer-2.5-1.7.10-481_deobf.jar")
+    compile files("mystcraft-1.7.10-0.11.3.00_deobf.jar")
 }
 
 processResources {
