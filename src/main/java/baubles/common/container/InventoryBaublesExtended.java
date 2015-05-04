@@ -75,7 +75,9 @@ public class InventoryBaublesExtended extends InventoryBaubles {
             superCall = false;
             return itemStack;
         } else {
-            return getContainerBaubles()[index - baubleInvSize].get();
+            StackRef[] refs = getContainerBaubles();
+            if (index - baubleInvSize >= refs.length) return null;
+            return refs[index - baubleInvSize].get();
         }
     }
 
@@ -86,7 +88,10 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         if (index < baubleInvSize) {
             return super.decrStackSize(index, count);
         } else {
-            StackRef ref = getContainerBaubles()[index - baubleInvSize];
+            StackRef[] refs = getContainerBaubles();
+            if (index - baubleInvSize >= refs.length) return null;
+
+            StackRef ref = refs[index - baubleInvSize];
 
             if (ref.get() != null) {
                 if (ref.get().stackSize <= count) {
@@ -123,7 +128,10 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         if (index < baubleInvSize) {
             return super.getStackInSlotOnClosing(index);
         } else {
-            StackRef ref = getContainerBaubles()[index - baubleInvSize];
+            StackRef[] refs = getContainerBaubles();
+            if (index - baubleInvSize >= refs.length) return null;
+
+            StackRef ref = refs[index - baubleInvSize];
             ItemStack stack = ref.get();
             ref.set(null);
             return stack;
@@ -137,7 +145,10 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         if (index < baubleInvSize) {
             super.setInventorySlotContents(index, stack);
         } else {
-            getContainerBaubles()[index - baubleInvSize].set(stack);
+            StackRef[] refs = getContainerBaubles();
+            if (index - baubleInvSize >= refs.length) return;
+
+            refs[index - baubleInvSize].set(stack);
         }
     }
 
@@ -148,10 +159,13 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         if (index < baubleInvSize) {
             return super.isItemValidForSlot(index, stack);
         } else {
+            StackRef[] refs = getContainerBaubles();
+            if (index - baubleInvSize >= refs.length) return false;
+
             return stack != null
                     && stack.getItem() instanceof IBauble
                     && ((IBauble) stack.getItem()).canEquip(stack, player.get())
-                    && getContainerBaubles()[index - baubleInvSize].isValid(stack);
+                    && refs[index - baubleInvSize].isValid(stack);
         }
     }
 

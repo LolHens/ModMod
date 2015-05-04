@@ -54,7 +54,7 @@ public class EventHandlerRunic {
     }
 
     public static int getFinalCharge(ItemStack stack) {
-        if (!(stack.getItem() instanceof IRunicArmor)) {
+        if (stack == null || !(stack.getItem() instanceof IRunicArmor)) {
             return 0;
         } else {
             IRunicArmor armor = (IRunicArmor) stack.getItem();
@@ -111,79 +111,73 @@ public class EventHandlerRunic {
                 }
 
                 IInventory baubleInv = BaublesApi.getBaubles(player);
-                int slot = 0;
 
-                while (true) {
-                    if (slot >= baubleInv.getSizeInventory()) {
-                        if (time > 0) {
-                            runicInfo.put(player.getEntityId(), new Integer[]{time, charged, charge, interval, emergency});
-                            if (runicCharge.containsKey(player.getEntityId())) {
-                                slot = runicCharge.get(player.getEntityId());
-                                if (slot > time) {
-                                    this.runicCharge.put(player.getEntityId(), time);
-                                    PacketHandler.INSTANCE.sendTo(new PacketRunicCharge(player, (short) time, time), (EntityPlayerMP) player);
-                                }
-                            }
-                        } else {
-                            this.runicInfo.remove(player.getEntityId());
-                            this.runicCharge.put(player.getEntityId(), 0);
-                            PacketHandler.INSTANCE.sendTo(new PacketRunicCharge(player, (short) 0, 0), (EntityPlayerMP) player);
-                        }
-                        break;
-                    }
-
+                for (int slot = 0; slot < baubleInv.getSizeInventory(); slot++) {
                     if (baubleInv.getStackInSlot(slot) != null && baubleInv.getStackInSlot(slot).getItem() instanceof IRunicArmor) {
                         int amount = getFinalCharge(baubleInv.getStackInSlot(slot));
                         if (baubleInv.getStackInSlot(slot).getItem() instanceof ItemRingRunic) {
                             switch (baubleInv.getStackInSlot(slot).getMetadata()) {
                                 case 2:
-                                    ++charged;
+                                    charged++;
                                     break;
                                 case 3:
-                                    ++interval;
+                                    interval++;
                             }
                         } else if (baubleInv.getStackInSlot(slot).getItem() instanceof ItemAmuletRunic && baubleInv.getStackInSlot(slot).getMetadata() == 1) {
-                            ++emergency;
+                            emergency++;
                         } else if (baubleInv.getStackInSlot(slot).getItem() instanceof ItemGirdleRunic && baubleInv.getStackInSlot(slot).getMetadata() == 1) {
-                            ++charge;
+                            charge++;
                         }
 
                         time += amount;
                     }
+                }
 
-                    ++slot;
+                if (time > 0) {
+                    runicInfo.put(player.getEntityId(), new Integer[]{time, charged, charge, interval, emergency});
+                    if (runicCharge.containsKey(player.getEntityId())) {
+                        int charge2 = runicCharge.get(player.getEntityId());
+                        if (charge2 > time) {
+                            this.runicCharge.put(player.getEntityId(), time);
+                            PacketHandler.INSTANCE.sendTo(new PacketRunicCharge(player, (short) time, time), (EntityPlayerMP) player);
+                        }
+                    }
+                } else {
+                    this.runicInfo.remove(player.getEntityId());
+                    this.runicCharge.put(player.getEntityId(), 0);
+                    PacketHandler.INSTANCE.sendTo(new PacketRunicCharge(player, (short) 0, 0), (EntityPlayerMP) player);
                 }
             }
 
             if (this.rechargeDelay > 0) {
                 --this.rechargeDelay;
-            } else if (this.runicInfo.containsKey(Integer.valueOf(player.getEntityId()))) {
-                if (!this.lastCharge.containsKey(Integer.valueOf(player.getEntityId()))) {
-                    this.lastCharge.put(Integer.valueOf(player.getEntityId()), Integer.valueOf(-1));
+            } else if (this.runicInfo.containsKey(player.getEntityId())) {
+                if (!this.lastCharge.containsKey(player.getEntityId())) {
+                    this.lastCharge.put(player.getEntityId(), -1);
                 }
 
-                if (!this.runicCharge.containsKey(Integer.valueOf(player.getEntityId()))) {
-                    this.runicCharge.put(Integer.valueOf(player.getEntityId()), Integer.valueOf(0));
+                if (!this.runicCharge.containsKey(player.getEntityId())) {
+                    this.runicCharge.put(player.getEntityId(), 0);
                 }
 
-                if (!this.nextCycle.containsKey(Integer.valueOf(player.getEntityId()))) {
-                    this.nextCycle.put(Integer.valueOf(player.getEntityId()), Long.valueOf(0L));
+                if (!this.nextCycle.containsKey(player.getEntityId())) {
+                    this.nextCycle.put(player.getEntityId(), Long.valueOf(0L));
                 }
 
                 long var11 = System.currentTimeMillis();
-                charge = this.runicCharge.get(Integer.valueOf(player.getEntityId())).intValue();
-                if (charge > this.runicInfo.get(Integer.valueOf(player.getEntityId()))[0].intValue()) {
-                    charge = this.runicInfo.get(Integer.valueOf(player.getEntityId()))[0].intValue();
-                } else if (charge < this.runicInfo.get(Integer.valueOf(player.getEntityId()))[0].intValue() && this.nextCycle.get(Integer.valueOf(player.getEntityId())).longValue() < var11 && WandManager.consumeVisFromInventory(player, (new AspectList()).add(Aspect.AIR, Config.shieldCost).add(Aspect.EARTH, Config.shieldCost))) {
-                    long var12 = (long) (Config.shieldRecharge - this.runicInfo.get(Integer.valueOf(player.getEntityId()))[1].intValue() * 500);
-                    this.nextCycle.put(Integer.valueOf(player.getEntityId()), Long.valueOf(var11 + var12));
+                charge = this.runicCharge.get(player.getEntityId());
+                if (charge > this.runicInfo.get(player.getEntityId())[0]) {
+                    charge = this.runicInfo.get(player.getEntityId())[0];
+                } else if (charge < this.runicInfo.get(player.getEntityId())[0] && this.nextCycle.get(player.getEntityId()) < var11 && WandManager.consumeVisFromInventory(player, (new AspectList()).add(Aspect.AIR, Config.shieldCost).add(Aspect.EARTH, Config.shieldCost))) {
+                    long var12 = (long) (Config.shieldRecharge - this.runicInfo.get(player.getEntityId())[1] * 500);
+                    this.nextCycle.put(player.getEntityId(), var11 + var12);
                     ++charge;
-                    this.runicCharge.put(Integer.valueOf(player.getEntityId()), Integer.valueOf(charge));
+                    this.runicCharge.put(player.getEntityId(), charge);
                 }
 
-                if (this.lastCharge.get(Integer.valueOf(player.getEntityId())).intValue() != charge) {
-                    PacketHandler.INSTANCE.sendTo(new PacketRunicCharge(player, Short.valueOf((short) charge), this.runicInfo.get(Integer.valueOf(player.getEntityId()))[0].intValue()), (EntityPlayerMP) player);
-                    this.lastCharge.put(Integer.valueOf(player.getEntityId()), Integer.valueOf(charge));
+                if (this.lastCharge.get(player.getEntityId()) != charge) {
+                    PacketHandler.INSTANCE.sendTo(new PacketRunicCharge(player, (short) charge, this.runicInfo.get(player.getEntityId())[0]), (EntityPlayerMP) player);
+                    this.lastCharge.put(player.getEntityId(), charge);
                 }
             }
         }
@@ -220,7 +214,7 @@ public class EventHandlerRunic {
                 return;
             }
 
-            if (this.runicInfo.containsKey(Integer.valueOf(attacker2.getEntityId())) && this.runicCharge.containsKey(Integer.valueOf(attacker2.getEntityId())) && this.runicCharge.get(Integer.valueOf(attacker2.getEntityId())).intValue() > 0) {
+            if (this.runicInfo.containsKey(attacker2.getEntityId()) && this.runicCharge.containsKey(attacker2.getEntityId()) && this.runicCharge.get(attacker2.getEntityId()) > 0) {
                 int target1 = -1;
                 if (event.source.getEntity() != null) {
                     target1 = event.source.getEntity().getEntityId();
@@ -235,7 +229,7 @@ public class EventHandlerRunic {
                 }
 
                 PacketHandler.INSTANCE.sendToAllAround(new PacketFXShield(event.entity.getEntityId(), target1), new TargetPoint(event.entity.worldObj.provider.dimensionId, event.entity.posX, event.entity.posY, event.entity.posZ, 64.0D));
-                int charge1 = this.runicCharge.get(Integer.valueOf(attacker2.getEntityId())).intValue();
+                int charge1 = this.runicCharge.get(attacker2.getEntityId());
                 if ((float) charge1 > event.ammount) {
                     charge1 = (int) ((float) charge1 - event.ammount);
                     event.ammount = 0.0F;
@@ -245,17 +239,17 @@ public class EventHandlerRunic {
                 }
 
                 String key = attacker2.getEntityId() + ":" + 2;
-                if (charge1 <= 0 && this.runicInfo.get(Integer.valueOf(attacker2.getEntityId()))[2].intValue() > 0 && (!this.upgradeCooldown.containsKey(key) || this.upgradeCooldown.get(key).longValue() < mob2)) {
-                    this.upgradeCooldown.put(key, Long.valueOf(mob2 + 20000L));
-                    attacker2.worldObj.newExplosion(attacker2, attacker2.posX, attacker2.posY + (double) (attacker2.height / 2.0F), attacker2.posZ, 1.5F + (float) this.runicInfo.get(Integer.valueOf(attacker2.getEntityId()))[2].intValue() * 0.5F, false, false);
+                if (charge1 <= 0 && this.runicInfo.get(attacker2.getEntityId())[2] > 0 && (!this.upgradeCooldown.containsKey(key) || this.upgradeCooldown.get(key) < mob2)) {
+                    this.upgradeCooldown.put(key, mob2 + 20000L);
+                    attacker2.worldObj.newExplosion(attacker2, attacker2.posX, attacker2.posY + (double) (attacker2.height / 2.0F), attacker2.posZ, 1.5F + (float) this.runicInfo.get(attacker2.getEntityId())[2] * 0.5F, false, false);
                 }
 
                 key = attacker2.getEntityId() + ":" + 3;
-                if (charge1 <= 0 && this.runicInfo.get(Integer.valueOf(attacker2.getEntityId()))[3].intValue() > 0 && (!this.upgradeCooldown.containsKey(key) || this.upgradeCooldown.get(key).longValue() < mob2)) {
-                    this.upgradeCooldown.put(key, Long.valueOf(mob2 + 20000L));
+                if (charge1 <= 0 && this.runicInfo.get(attacker2.getEntityId())[3] > 0 && (!this.upgradeCooldown.containsKey(key) || this.upgradeCooldown.get(key) < mob2)) {
+                    this.upgradeCooldown.put(key, mob2 + 20000L);
                     synchronized (attacker2) {
                         try {
-                            attacker2.addPotionEffect(new PotionEffect(Potion.regeneration.id, 240, this.runicInfo.get(Integer.valueOf(attacker2.getEntityId()))[3].intValue()));
+                            attacker2.addPotionEffect(new PotionEffect(Potion.regeneration.id, 240, this.runicInfo.get(attacker2.getEntityId())[3]));
                         } catch (Exception var11) {
                         }
                     }
@@ -264,10 +258,10 @@ public class EventHandlerRunic {
                 }
 
                 key = attacker2.getEntityId() + ":" + 4;
-                if (charge1 <= 0 && this.runicInfo.get(Integer.valueOf(attacker2.getEntityId()))[4].intValue() > 0 && (!this.upgradeCooldown.containsKey(key) || this.upgradeCooldown.get(key).longValue() < mob2)) {
-                    this.upgradeCooldown.put(key, Long.valueOf(mob2 + 60000L));
-                    int t1 = 8 * this.runicInfo.get(Integer.valueOf(attacker2.getEntityId()))[4].intValue();
-                    charge1 = Math.min(this.runicInfo.get(Integer.valueOf(attacker2.getEntityId()))[0].intValue(), t1);
+                if (charge1 <= 0 && this.runicInfo.get(attacker2.getEntityId())[4] > 0 && (!this.upgradeCooldown.containsKey(key) || this.upgradeCooldown.get(key) < mob2)) {
+                    this.upgradeCooldown.put(key, mob2 + 60000L);
+                    int t1 = 8 * this.runicInfo.get(attacker2.getEntityId())[4];
+                    charge1 = Math.min(this.runicInfo.get(attacker2.getEntityId())[0], t1);
                     this.isDirty = true;
                     attacker2.worldObj.playSoundAtEntity(attacker2, "thaumcraft:runicShieldCharge", 1.0F, 1.0F);
                 }
@@ -276,8 +270,8 @@ public class EventHandlerRunic {
                     this.rechargeDelay = Config.shieldWait;
                 }
 
-                this.runicCharge.put(Integer.valueOf(attacker2.getEntityId()), Integer.valueOf(charge1));
-                PacketHandler.INSTANCE.sendTo(new PacketRunicCharge(attacker2, Short.valueOf((short) charge1), this.runicInfo.get(Integer.valueOf(attacker2.getEntityId()))[0].intValue()), (EntityPlayerMP) attacker2);
+                this.runicCharge.put(attacker2.getEntityId(), charge1);
+                PacketHandler.INSTANCE.sendTo(new PacketRunicCharge(attacker2, (short) charge1, this.runicInfo.get(attacker2.getEntityId())[0]), (EntityPlayerMP) attacker2);
             }
         } else if (event.entity instanceof EntityMob && (((EntityMob) event.entity).getEntityAttribute(EntityUtils.CHAMPION_MOD).getAttributeValue() >= 0.0D || event.entity instanceof IEldritchMob)) {
             mob1 = (EntityMob) event.entity;
