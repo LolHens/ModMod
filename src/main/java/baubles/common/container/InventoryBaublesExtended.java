@@ -16,7 +16,19 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         super(player);
     }
 
+    private StackRef[] cachedContainerBaubles;
+
+    protected void cacheContainerBaubles() {
+        cachedContainerBaubles = getContainerBaubles();
+    }
+
+    protected void releaseCachedContainerBaubles() {
+        cachedContainerBaubles = null;
+    }
+
     public StackRef[] getContainerBaubles() {
+        if (cachedContainerBaubles != null) return cachedContainerBaubles;
+
         EntityPlayer entity = player.get();
 
         List<StackRef> baubles = new LinkedList<StackRef>();
@@ -43,6 +55,14 @@ public class InventoryBaublesExtended extends InventoryBaubles {
     public int getSizeInventory() {
         if (superCall) return super.getSizeInventory();
         return super.getSizeInventory() + getContainerBaubles().length;
+    }
+
+    public ItemStack[] getStacks() {
+        ItemStack[] stacks = new ItemStack[getSizeInventory()];
+        cacheContainerBaubles();
+        for (int i = 0; i < stacks.length; i++) stacks[i] = getStackInSlot(i);
+        releaseCachedContainerBaubles();
+        return stacks;
     }
 
     @Override
@@ -137,21 +157,6 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
     public void syncSlotToClients(int slot) {
         if (slot < stackList.length) super.syncSlotToClients(slot);
-    }
-
-    @Override
-    public boolean isCustomInventoryName() {
-        return hasCustomInventoryName();
-    }
-
-    @Override
-    public void openChest() {
-        openInventory();
-    }
-
-    @Override
-    public void closeChest() {
-        closeInventory();
     }
 
     private class StackRef {
