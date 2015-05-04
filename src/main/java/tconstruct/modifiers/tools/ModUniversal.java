@@ -1,11 +1,8 @@
 package tconstruct.modifiers.tools;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
-import tconstruct.items.tools.Scythe;
-import tconstruct.library.tools.AOEHarvestTool;
 import tconstruct.library.tools.HarvestTool;
 
 /**

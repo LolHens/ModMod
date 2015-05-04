@@ -7,14 +7,14 @@ package thaumcraft.common.items.wands;
 
 import baubles.api.BaubleType;
 import baubles.api.IBauble;
+import baubles.api.IBaubleContainer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
-import thaumcraft.common.items.wands.ItemFocusPouch;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class ItemFocusPouchBauble extends ItemFocusPouch implements IBauble {
+public class ItemFocusPouchBauble extends ItemFocusPouch implements IBauble, IBaubleContainer {
     public ItemFocusPouchBauble() {
     }
 
@@ -60,5 +60,28 @@ public class ItemFocusPouchBauble extends ItemFocusPouch implements IBauble {
             if (itemStack != null && itemStack.getItem() instanceof IBauble) baubles.add(itemStack);
         }
         return baubles;
+    }
+
+    @Override
+    public ItemStack[] getBaubles(ItemStack container, EntityLivingBase entity) {
+        return getContainedBaubles(container).toArray(new ItemStack[0]);
+    }
+
+    @Override
+    public boolean canReplaceBauble(ItemStack container, EntityLivingBase entity, int num, ItemStack newStack) {
+        return true;
+    }
+
+    @Override
+    public void replaceBauble(ItemStack container, EntityLivingBase entity, int num, ItemStack newStack) {
+        int index = 0;
+        ItemStack[] inv = getInventory(container);
+        for (int i = 0; i < inv.length; i++) {
+            if (inv[i] != null && inv[i].getItem() instanceof IBauble) {
+                if (num == index) inv[i] = newStack;
+                index++;
+            }
+        }
+        setInventory(container, inv);
     }
 }

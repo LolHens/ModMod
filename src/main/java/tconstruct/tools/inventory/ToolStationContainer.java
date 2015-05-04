@@ -5,8 +5,6 @@
 
 package tconstruct.tools.inventory;
 
-import java.util.Random;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -21,6 +19,8 @@ import tconstruct.smeltery.inventory.ActiveContainer;
 import tconstruct.tools.TinkerModification;
 import tconstruct.tools.TinkerTools;
 import tconstruct.tools.logic.ToolStationLogic;
+
+import java.util.Random;
 
 public class ToolStationContainer extends ActiveContainer {
     public InventoryPlayer invPlayer;

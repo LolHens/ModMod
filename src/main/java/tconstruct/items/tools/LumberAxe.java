@@ -5,8 +5,6 @@
 
 package tconstruct.items.tools;
 
-import java.util.Iterator;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
@@ -23,6 +21,8 @@ import tconstruct.library.tools.AOEHarvestTool;
 import tconstruct.library.tools.AbilityHelper;
 import tconstruct.modifiers.tools.ModSneakDetector;
 import tconstruct.tools.TinkerTools;
+
+import java.util.Iterator;
 
 public class LumberAxe extends AOEHarvestTool {
     static Material[] materials;

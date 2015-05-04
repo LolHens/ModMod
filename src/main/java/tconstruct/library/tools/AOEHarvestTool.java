@@ -13,7 +13,6 @@ import tconstruct.modifiers.tools.ModDepth;
 import tconstruct.modifiers.tools.ModRange;
 import tconstruct.modifiers.tools.ModSneakDetector;
 import tconstruct.modifiers.tools.ModUniversal;
-import tconstruct.tools.TinkerModification;
 
 public abstract class AOEHarvestTool extends HarvestTool {
     public int breakRadius;

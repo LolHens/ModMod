@@ -5,9 +5,6 @@
 
 package tconstruct.library.tools;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -22,12 +19,13 @@ import net.minecraft.network.play.server.S23PacketBlockChange;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
-import tconstruct.library.tools.AbilityHelper;
-import tconstruct.library.tools.ToolCore;
 import tconstruct.modifiers.tools.ModConvenient;
 import tconstruct.modifiers.tools.ModUniversal;
 import tconstruct.tools.TinkerTools;
 import tconstruct.util.config.PHConstruct;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class HarvestTool extends ToolCore {
     public HarvestTool(int baseDamage) {

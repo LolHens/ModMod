@@ -5,9 +5,6 @@
 
 package thaumcraft.common.tiles;
 
-import java.util.List;
-import java.util.Random;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,6 +27,9 @@ import thaumcraft.codechicken.lib.vec.Cuboid6;
 import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.config.Config;
 import thaumcraft.common.config.ConfigBlocks;
+
+import java.util.List;
+import java.util.Random;
 
 public class TileTube extends TileThaumcraft implements IEssentiaTransport, IUntypedEssentiaTransport, IWandable {
     public ForgeDirection facing;

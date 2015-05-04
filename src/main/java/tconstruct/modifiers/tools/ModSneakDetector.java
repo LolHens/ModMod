@@ -6,7 +6,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import tconstruct.items.tools.Scythe;
 import tconstruct.library.tools.AOEHarvestTool;
-import tconstruct.modifiers.tools.ModBoolean;
 
 /**
  * Created by LolHens on 30.04.2015.

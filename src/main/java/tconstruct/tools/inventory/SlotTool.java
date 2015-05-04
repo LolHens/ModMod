@@ -5,8 +5,6 @@
 
 package tconstruct.tools.inventory;
 
-import java.util.Random;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
@@ -17,6 +15,8 @@ import net.minecraftforge.common.MinecraftForge;
 import tconstruct.library.event.ToolCraftedEvent;
 import tconstruct.library.modifier.IModifyable;
 import tconstruct.tools.TinkerModification;
+
+import java.util.Random;
 
 public class SlotTool extends Slot {
     public EntityPlayer player;

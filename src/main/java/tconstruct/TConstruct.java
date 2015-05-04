@@ -8,24 +8,16 @@ package tconstruct;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLInterModComms;
-import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent;
 import cpw.mods.fml.common.network.NetworkCheckHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.VillagerRegistry;
 import cpw.mods.fml.relauncher.Side;
-
-import java.util.Map;
-import java.util.Random;
-
 import mantle.pulsar.config.ForgeCFG;
 import mantle.pulsar.control.PulseManager;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
@@ -68,11 +60,10 @@ import tconstruct.util.network.PacketPipeline;
 import tconstruct.weaponry.TinkerWeaponry;
 import tconstruct.world.TinkerWorld;
 import tconstruct.world.gen.SlimeIslandGen;
-import tconstruct.world.village.ComponentSmeltery;
-import tconstruct.world.village.ComponentToolWorkshop;
-import tconstruct.world.village.TVillageTrades;
-import tconstruct.world.village.VillageSmelteryHandler;
-import tconstruct.world.village.VillageToolStationHandler;
+import tconstruct.world.village.*;
+
+import java.util.Map;
+import java.util.Random;
 
 @Mod(
         modid = "TConstruct",

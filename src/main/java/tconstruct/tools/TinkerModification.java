@@ -8,12 +8,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import tconstruct.TConstruct;
 import tconstruct.armor.TinkerArmor;
 import tconstruct.library.crafting.ModifyBuilder;
 import tconstruct.modifiers.tools.*;
-import tconstruct.smeltery.TinkerSmeltery;
-import tconstruct.world.TinkerWorld;
 
 /**
  * Created by LolHens on 30.04.2015.

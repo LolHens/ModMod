@@ -14,8 +14,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import thaumcraft.api.wands.ItemFocusBasic;
-import thaumcraft.common.container.InventoryFocusPouch;
-import thaumcraft.common.container.SlotLimitedByClass;
 import thaumcraft.common.items.wands.ItemFocusPouch;
 
 public class ContainerFocusPouch extends Container {

@@ -2,10 +2,7 @@ package tconstruct.modifiers.tools;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
-import tconstruct.items.tools.Scythe;
 import tconstruct.library.modifier.ItemModifier;
-import tconstruct.library.tools.AOEHarvestTool;
 import tconstruct.library.weaponry.ProjectileWeapon;
 
 /**

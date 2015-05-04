@@ -6,12 +6,6 @@
 package tconstruct.items.tools;
 
 import cpw.mods.fml.client.FMLClientHandler;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -37,6 +31,11 @@ import tconstruct.library.tools.Weapon;
 import tconstruct.modifiers.tools.ModRange;
 import tconstruct.modifiers.tools.ModSneakDetector;
 import tconstruct.tools.TinkerTools;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 public class Scythe extends Weapon {
     static Material[] materials;

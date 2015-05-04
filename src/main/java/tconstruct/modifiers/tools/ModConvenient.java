@@ -4,7 +4,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import tconstruct.library.tools.AOEHarvestTool;
-import tconstruct.library.tools.HarvestTool;
 
 /**
  * Created by LolHens on 30.04.2015.

@@ -7,9 +7,6 @@ package thaumcraft.common.items.relics;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
-import java.util.List;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,8 +26,9 @@ import thaumcraft.api.aspects.IEssentiaTransport;
 import thaumcraft.api.aspects.IUntypedEssentiaTransport;
 import thaumcraft.codechicken.lib.raytracer.RayTracer;
 import thaumcraft.common.Thaumcraft;
-import thaumcraft.common.tiles.TileTube;
 import thaumcraft.common.tiles.TileTubeBuffer;
+
+import java.util.List;
 
 public class ItemResonator extends Item {
     private IIcon icon;
