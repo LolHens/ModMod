@@ -38,6 +38,10 @@ public class InventoryBaubles implements IInventory {
         return stackList;
     }
 
+    public boolean isContainerBauble(int index) {
+        return false;
+    }
+
     public Container getEventHandler() {
         return this.eventHandler;
     }

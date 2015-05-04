@@ -65,6 +65,13 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         return stacks;
     }
 
+    public boolean isContainerBauble(int index) {
+        int baubleInvSize = super.getSizeInventory();
+
+        if (index < baubleInvSize) return false;
+        return true;
+    }
+
     @Override
     public ItemStack getStackInSlot(int index) {
         int baubleInvSize = super.getSizeInventory();
