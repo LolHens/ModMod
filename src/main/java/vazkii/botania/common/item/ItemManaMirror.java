@@ -216,6 +216,7 @@ public class ItemManaMirror extends ItemMod implements IManaItem, ICoordBoundIte
 
     @Override
     public void onWornTick(ItemStack itemStack, EntityLivingBase entityLivingBase) {
+        onUpdate(itemStack, entityLivingBase.worldObj, entityLivingBase, 0, false);
     }
 
     @Override
