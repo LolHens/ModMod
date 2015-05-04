@@ -62,7 +62,7 @@ public class ItemLokiRing extends ItemRelicBauble implements IWireframeCoordinat
             MovingObjectPosition lookPos = ToolCommons.raytraceFromEntity(player.worldObj, player, true, 10.0D);
             List cursors;
             int x;
-            if (heldItemStack == null && event.action == Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
+            if (heldItemStack != null && heldItemStack.getItem() == ModItems.terraPick && event.action == Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
                 if (originCoords.posY == -1 && lookPos != null) {
                     setOriginPos(lokiRing, lookPos.blockX, lookPos.blockY, lookPos.blockZ);
                     setCursorList(lokiRing, (List) null);
