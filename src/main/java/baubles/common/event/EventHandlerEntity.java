@@ -31,7 +31,7 @@ public class EventHandlerEntity {
             InventoryBaubles baubles = PlayerHandler.getPlayerBaubles(player);
 
             for (int a = 0; a < baubles.getSizeInventory(); ++a) {
-                if (baubles.getStackInSlot(a) != null && baubles.getStackInSlot(a).getItem() instanceof IBauble) {
+                if (!baubles.isContainerBauble(a) && baubles.getStackInSlot(a) != null && baubles.getStackInSlot(a).getItem() instanceof IBauble) {
                     ((IBauble) baubles.getStackInSlot(a).getItem()).onWornTick(baubles.getStackInSlot(a), player);
                 }
             }
