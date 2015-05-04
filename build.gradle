@@ -47,6 +47,7 @@ dependencies {
     compile files("lib/ThaumicTinkerer-2.5-1.7.10-481_deobf.jar")
     compile files("lib/mystcraft-1.7.10-0.11.3.00_deobf.jar")
     compile files("lib/Botania r1.6-174_deobf.jar")
+    compile files("lib/ThaumicExploration-1.7.10-1.1-37_deobf.jar")
 }
 
 processResources {
