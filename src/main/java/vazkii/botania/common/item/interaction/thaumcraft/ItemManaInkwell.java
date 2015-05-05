@@ -7,12 +7,15 @@ package vazkii.botania.common.item.interaction.thaumcraft;
 
 import cpw.mods.fml.common.Optional.Interface;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import thaumcraft.api.IScribeTools;
 import vazkii.botania.api.mana.IManaItem;
+import vazkii.botania.api.mana.ManaItemHandler;
 import vazkii.botania.common.core.helper.ItemNBTHelper;
 import vazkii.botania.common.item.ItemMod;
 
@@ -102,5 +105,12 @@ public class ItemManaInkwell extends ItemMod implements IManaItem, IScribeTools 
 
     public boolean isNoExport(ItemStack stack) {
         return true;
+    }
+
+    @Override
+    public void onUpdate(ItemStack stack, World world, Entity player, int par4, boolean par5) {
+        if (!world.isRemote && player instanceof EntityPlayer && getMana(stack) < getMaxMana(stack)) {
+            addMana(stack, ManaItemHandler.requestMana(stack, (EntityPlayer) player, Math.min(300, getMaxMana(stack) - getMana(stack)), true));
+        }
     }
 }
