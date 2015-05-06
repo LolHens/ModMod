@@ -46,7 +46,9 @@ public class InventoryBaublesExtended extends InventoryBaubles {
             }
         }
 
-        return baubles.toArray(new StackRef[0]);
+        StackRef[] array = new StackRef[baubles.size()];
+        baubles.toArray(array);
+        return array;
     }
 
     private boolean superCall = false;
