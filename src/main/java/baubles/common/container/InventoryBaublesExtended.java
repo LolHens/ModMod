@@ -33,10 +33,8 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
         List<StackRef> baubles = new LinkedList<StackRef>();
 
-        for (int i = 0; i < super.getSizeInventory(); i++) {
-            superCall = true;
+        for (int i = 0; i < getStandardInvSize(); i++) {
             ItemStack slot = getStackInSlot(i);
-            superCall = false;
             if (slot != null && slot.getItem() instanceof IBaubleContainer) {
                 ItemStack[] baubleArray = ((IBaubleContainer) slot.getItem()).getBaubles(slot, entity);
                 for (int i2 = 0; i2 < baubleArray.length; i2++) {
@@ -51,12 +49,13 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         return array;
     }
 
-    private boolean superCall = false;
-
     @Override
     public int getSizeInventory() {
-        if (superCall) return super.getSizeInventory();
-        return super.getSizeInventory() + getContainerBaubles().length;
+        return getStandardInvSize() + getContainerBaubles().length;
+    }
+
+    public int getStandardInvSize() {
+        return super.getSizeInventory();
     }
 
     public ItemStack[] getStacks() {
@@ -68,7 +67,7 @@ public class InventoryBaublesExtended extends InventoryBaubles {
     }
 
     public boolean isContainerBauble(int index) {
-        int baubleInvSize = super.getSizeInventory();
+        int baubleInvSize = getStandardInvSize();
 
         if (index < baubleInvSize) return false;
         return true;
@@ -76,13 +75,10 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
     @Override
     public ItemStack getStackInSlot(int index) {
-        int baubleInvSize = super.getSizeInventory();
+        int baubleInvSize = getStandardInvSize();
 
         if (index < baubleInvSize) {
-            superCall = true;
-            ItemStack itemStack = super.getStackInSlot(index);
-            superCall = false;
-            return itemStack;
+            return stackList[index];
         } else {
             StackRef[] refs = getContainerBaubles();
             if (index - baubleInvSize >= refs.length) return null;
@@ -92,7 +88,7 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
     @Override
     public ItemStack decrStackSize(int index, int count) {
-        int baubleInvSize = super.getSizeInventory();
+        int baubleInvSize = getStandardInvSize();
 
         if (index < baubleInvSize) {
             return super.decrStackSize(index, count);
@@ -132,7 +128,7 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
     @Override
     public ItemStack getStackInSlotOnClosing(int index) {
-        int baubleInvSize = super.getSizeInventory();
+        int baubleInvSize = getStandardInvSize();
 
         if (index < baubleInvSize) {
             return super.getStackInSlotOnClosing(index);
@@ -149,7 +145,7 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
-        int baubleInvSize = super.getSizeInventory();
+        int baubleInvSize = getStandardInvSize();
 
         if (index < baubleInvSize) {
             super.setInventorySlotContents(index, stack);
@@ -163,7 +159,7 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
-        int baubleInvSize = super.getSizeInventory();
+        int baubleInvSize = getStandardInvSize();
 
         if (index < baubleInvSize) {
             return super.isItemValidForSlot(index, stack);

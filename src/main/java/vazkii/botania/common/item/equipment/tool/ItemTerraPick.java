@@ -78,7 +78,7 @@ public class ItemTerraPick extends ItemManasteelPick implements IManaItem, ISequ
     public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4) {
         String rankFormat = StatCollector.translateToLocal("botaniamisc.toolRank");
         String rank = StatCollector.translateToLocal("botania.rank" + getLevel(par1ItemStack));
-        par3List.add(String.format(rankFormat, new Object[]{rank}).replaceAll("&", "§"));
+        par3List.add(String.format(rankFormat, new Object[]{rank}).replaceAll("&", "\u00a7"));
         if (this.getMana(par1ItemStack) == 2147483647) {
             par3List.add(EnumChatFormatting.RED + StatCollector.translateToLocal("botaniamisc.getALife"));
         }
