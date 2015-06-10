@@ -1,0 +1,8 @@
+appeng:
+- precise crafting pattern
+tcon:
+- precise modifier
+botania:
+- configurable water flower mana
+extra utilities:
+- lag fix for transfer nodes trying to pick up stuff
