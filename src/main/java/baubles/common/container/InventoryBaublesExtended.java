@@ -26,7 +26,7 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         cachedContainerBaubles = null;
     }
 
-    public StackRef[] getContainerBaubles() {
+    public synchronized StackRef[] getContainerBaubles() {
         if (cachedContainerBaubles != null) return cachedContainerBaubles;
 
         EntityPlayer entity = player.get();

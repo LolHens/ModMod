@@ -5,6 +5,7 @@
 
 package tconstruct.library.tools;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -18,8 +19,11 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.server.S23PacketBlockChange;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import tconstruct.modifiers.tools.ModConvenient;
+import tconstruct.modifiers.tools.ModPrecision;
 import tconstruct.modifiers.tools.ModUniversal;
 import tconstruct.tools.TinkerTools;
 import tconstruct.util.config.PHConstruct;
@@ -30,6 +34,8 @@ import java.util.Set;
 public abstract class HarvestTool extends ToolCore {
     public HarvestTool(int baseDamage) {
         super(baseDamage);
+
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     public boolean onBlockStartBreak(ItemStack stack, int x, int y, int z, EntityPlayer player) {
@@ -54,16 +60,80 @@ public abstract class HarvestTool extends ToolCore {
     }
 
     public float getDigSpeed(ItemStack stack, Block block, int meta) {
+        float digSpeed;
+
         if (!stack.hasTagCompound()) {
-            return 1.0F;
+            digSpeed = 1.0F;
         } else {
             NBTTagCompound tags = stack.getTagCompound().getCompoundTag("InfiTool");
-            return tags.getBoolean("Broken") ? 0.1F :
+            digSpeed = tags.getBoolean("Broken") ? 0.1F :
                     ((ModConvenient.isConvenient(stack)
                             || ModUniversal.isUniversal(stack)
                             || this.isEffective(block, meta)) ? this.calculateStrength(tags, block, meta) :
                             super.getDigSpeed(stack, block, meta));
         }
+
+        if (ModPrecision.isPrecise(stack)) digSpeed = Math.min(digSpeed, 30f);
+
+        return digSpeed;
+    }
+
+    @SubscribeEvent
+    public void onBlockBreak(PlayerEvent.BreakSpeed e) {
+        ItemStack itemStack = e.entityPlayer.inventory.getCurrentItem();
+
+        if (itemStack == null || !(itemStack.getItem() instanceof HarvestTool) || e.block.getBlockHardness(e.entityPlayer.worldObj, e.x, e.y, e.z) == 0)
+            return;
+
+        float breakSpeed = toBreakSpeed(e.block, e.entityPlayer, e.entityPlayer.worldObj, e.x, e.y, e.z, e.newSpeed);
+
+        e.newSpeed = toBreakSpeedMultiplier(e.block, e.entityPlayer, e.entityPlayer.worldObj, e.x, e.y, e.z, getBreakSpeed(itemStack, e.block, e.metadata, breakSpeed));
+    }
+
+    private static float toBreakSpeed(Block block, EntityPlayer player, World world, int x, int y, int z, float breakSpeedMultiplier) {
+        int metadata = world.getBlockMetadata(x, y, z);
+        float hardness = block.getBlockHardness(world, x, y, z);
+        if (hardness < 0.0F) return 0.0F;
+
+        if (!ForgeHooks.canHarvestBlock(block, player, metadata)) {
+            return breakSpeedMultiplier / hardness / 100F;
+        } else {
+            return breakSpeedMultiplier / hardness / 30F;
+        }
+    }
+
+    private static float toBreakSpeedMultiplier(Block block, EntityPlayer player, World world, int x, int y, int z, float breakSpeed) {
+        int metadata = world.getBlockMetadata(x, y, z);
+        float hardness = block.getBlockHardness(world, x, y, z);
+        if (hardness < 0.0F) return 0.0F;
+
+        if (!ForgeHooks.canHarvestBlock(block, player, metadata)) {
+            return breakSpeed * hardness * 100F;
+        } else {
+            return breakSpeed * hardness * 30F;
+        }
+    }
+
+    private float getBreakSpeed(ItemStack stack, Block block, int meta, float originalBreakSpeed) {
+        return originalBreakSpeed;
+    }
+
+    public static boolean canHarvestBlock(ItemStack stack, Block block, int metadata) {
+        if (block.getMaterial().isToolNotRequired()) {
+            return true;
+        }
+
+        String tool = block.getHarvestTool(metadata);
+        if (stack == null || tool == null) {
+            return false;
+        }
+
+        int toolLevel = stack.getItem().getHarvestLevel(stack, tool);
+        if (toolLevel < 0) {
+            return false;
+        }
+
+        return toolLevel >= block.getHarvestLevel(metadata);
     }
 
     public float calculateStrength(NBTTagCompound tags, Block block, int meta) {

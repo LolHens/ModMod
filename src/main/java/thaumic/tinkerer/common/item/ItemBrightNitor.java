@@ -7,7 +7,6 @@ package thaumic.tinkerer.common.item;
 
 import baubles.api.BaubleType;
 import baubles.api.IBauble;
-import baubles.api.IBaubleContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
@@ -34,7 +33,7 @@ public class ItemBrightNitor extends ItemBase implements IBauble {
     }
 
     public static void setBlock(int x, int y, int z, World world) {
-        if((world.getBlock(x, y, z) == Blocks.air || world.getBlock(x, y, z) == ThaumicTinkerer.registry.getFirstBlockFromClass(BlockNitorGas.class)) && !world.isRemote) {
+        if ((world.getBlock(x, y, z) == Blocks.air || world.getBlock(x, y, z) == ThaumicTinkerer.registry.getFirstBlockFromClass(BlockNitorGas.class)) && !world.isRemote) {
             world.setBlock(x, y, z, ThaumicTinkerer.registry.getFirstBlockFromClass(BlockNitorGas.class), meta, 2);
         }
 
@@ -45,7 +44,7 @@ public class ItemBrightNitor extends ItemBase implements IBauble {
     }
 
     public IRegisterableResearch getResearchItem() {
-        return (TTResearchItem)(new TTResearchItem("BRIGHT_NITOR", (new AspectList()).add(Aspect.LIGHT, 2).add(Aspect.FIRE, 1).add(Aspect.ENERGY, 1).add(Aspect.AIR, 1), 1, -5, 2, new ItemStack(this), new ResearchPage[0])).setParents(new String[]{"GASEOUS_LIGHT"}).setConcealed().setPages(new ResearchPage[]{new ResearchPage("0"), ResearchHelper.crucibleRecipePage("BRIGHT_NITOR")}).setSecondary();
+        return (TTResearchItem) (new TTResearchItem("BRIGHT_NITOR", (new AspectList()).add(Aspect.LIGHT, 2).add(Aspect.FIRE, 1).add(Aspect.ENERGY, 1).add(Aspect.AIR, 1), 1, -5, 2, new ItemStack(this), new ResearchPage[0])).setParents(new String[]{"GASEOUS_LIGHT"}).setConcealed().setPages(new ResearchPage[]{new ResearchPage("0"), ResearchHelper.crucibleRecipePage("BRIGHT_NITOR")}).setSecondary();
     }
 
     public ThaumicTinkererRecipe getRecipeItem() {
@@ -53,9 +52,9 @@ public class ItemBrightNitor extends ItemBase implements IBauble {
     }
 
     public void onUpdate(ItemStack par1ItemStack, World par2World, Entity par3Entity, int par4, boolean par5) {
-        int x = (int)Math.floor(par3Entity.posX);
-        int y = (int)par3Entity.posY + 1;
-        int z = (int)Math.floor(par3Entity.posZ);
+        int x = (int) Math.floor(par3Entity.posX);
+        int y = (int) par3Entity.posY + 1;
+        int z = (int) Math.floor(par3Entity.posZ);
         setBlock(x, y, z, par2World);
     }
 
