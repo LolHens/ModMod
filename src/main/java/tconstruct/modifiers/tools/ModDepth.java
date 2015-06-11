@@ -1,9 +1,11 @@
 package tconstruct.modifiers.tools;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import tconstruct.library.tools.AOEHarvestTool;
+import tconstruct.tools.TinkerModification;
 
 /**
  * Created by LolHens on 30.04.2015.
@@ -21,8 +23,8 @@ public class ModDepth extends ModInteger {
     }
 
     public static int getDepthIncrease(ItemStack tool) {
-        if (tool == null || !tool.hasTagCompound()) return 0;
-        return tool.getTagCompound().getCompoundTag("InfiTool").getInteger("Depth");
+        NBTBase.NBTPrimitive nbt = TinkerModification.getModifierTag(tool, ModDepth.class);
+        return nbt == null ? 0 : nbt.getInt();
     }
 
     public void modify(ItemStack[] input, ItemStack tool) {

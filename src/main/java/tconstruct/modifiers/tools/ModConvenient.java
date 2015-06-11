@@ -1,9 +1,11 @@
 package tconstruct.modifiers.tools;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import tconstruct.library.tools.AOEHarvestTool;
+import tconstruct.tools.TinkerModification;
 
 /**
  * Created by LolHens on 30.04.2015.
@@ -22,7 +24,7 @@ public class ModConvenient extends ModBoolean {
     }
 
     public static boolean isConvenient(ItemStack tool) {
-        if (tool == null || !tool.hasTagCompound()) return false;
-        return tool.getTagCompound().getCompoundTag("InfiTool").getBoolean("Convenient");
+        NBTBase.NBTPrimitive nbt = TinkerModification.getModifierTag(tool, ModConvenient.class);
+        return nbt != null && nbt.getByte() != 0;
     }
 }

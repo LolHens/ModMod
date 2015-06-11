@@ -1,9 +1,11 @@
 package tconstruct.modifiers.tools;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import tconstruct.library.tools.HarvestTool;
+import tconstruct.tools.TinkerModification;
 
 /**
  * Created by LolHens on 30.04.2015.
@@ -21,7 +23,7 @@ public class ModUniversal extends ModBoolean {
     }
 
     public static boolean isUniversal(ItemStack tool) {
-        if (tool == null || !tool.hasTagCompound()) return false;
-        return tool.getTagCompound().getCompoundTag("InfiTool").getBoolean("Universal");
+        NBTBase.NBTPrimitive nbt = TinkerModification.getModifierTag(tool, ModUniversal.class);
+        return nbt != null && nbt.getByte() != 0;
     }
 }

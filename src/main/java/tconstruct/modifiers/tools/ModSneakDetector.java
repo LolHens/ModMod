@@ -2,10 +2,12 @@ package tconstruct.modifiers.tools;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import tconstruct.items.tools.Scythe;
 import tconstruct.library.tools.AOEHarvestTool;
+import tconstruct.tools.TinkerModification;
 
 /**
  * Created by LolHens on 30.04.2015.
@@ -24,7 +26,7 @@ public class ModSneakDetector extends ModBoolean {
     }
 
     public static boolean isAOE(ItemStack tool, EntityPlayer player) {
-        if (tool == null || !tool.hasTagCompound()) return true;
-        return !tool.getTagCompound().getCompoundTag("InfiTool").getBoolean("Sneak Detector") || !player.isSneaking();
+        NBTBase.NBTPrimitive nbt = TinkerModification.getModifierTag(tool, ModSneakDetector.class);
+        return !(nbt != null && nbt.getByte() != 0 && player.isSneaking());
     }
 }
