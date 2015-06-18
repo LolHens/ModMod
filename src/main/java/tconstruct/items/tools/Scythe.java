@@ -29,7 +29,7 @@ import tconstruct.library.TConstructRegistry;
 import tconstruct.library.tools.AbilityHelper;
 import tconstruct.library.tools.Weapon;
 import tconstruct.modifiers.tools.ModRange;
-import tconstruct.modifiers.tools.ModSneakDetector;
+import tconstruct.modifiers.tools.ModCareful;
 import tconstruct.tools.TinkerTools;
 
 import java.util.ArrayList;
@@ -129,7 +129,7 @@ public class Scythe extends Weapon {
         boolean butter = EnchantmentHelper.getEnchantmentLevel(Enchantment.silkTouch.effectId, stack) > 0;
         int fortune = EnchantmentHelper.getFortuneModifier(player);
 
-        int radius = ModSneakDetector.isAOE(stack, player) ? 1 + ModRange.getRangeIncrease(stack) : 0;
+        int radius = ModCareful.isAOE(stack, player) ? 1 + ModRange.getRangeIncrease(stack) : 0;
 
         for (int xPos = x - radius; xPos <= x + radius; ++xPos) {
             for (int yPos = y - radius; yPos <= y + radius; ++yPos) {

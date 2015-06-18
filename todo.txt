@@ -5,4 +5,4 @@ tcon:
 botania:
 - configurable water flower mana
 extra utilities:
-- lag fix for transfer nodes trying to pick up stuff
+- compressed x64 generators

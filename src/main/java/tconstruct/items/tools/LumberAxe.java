@@ -19,7 +19,7 @@ import tconstruct.library.ActiveToolMod;
 import tconstruct.library.TConstructRegistry;
 import tconstruct.library.tools.AOEHarvestTool;
 import tconstruct.library.tools.AbilityHelper;
-import tconstruct.modifiers.tools.ModSneakDetector;
+import tconstruct.modifiers.tools.ModCareful;
 import tconstruct.tools.TinkerTools;
 
 import java.util.Iterator;
@@ -61,7 +61,7 @@ public class LumberAxe extends AOEHarvestTool {
     }
 
     public boolean onBlockStartBreak(ItemStack stack, int x, int y, int z, EntityPlayer player) {
-        if (stack.hasTagCompound() && ModSneakDetector.isAOE(stack, player)) {
+        if (stack.hasTagCompound() && ModCareful.isAOE(stack, player)) {
             World world = player.worldObj;
             Block wood = world.getBlock(x, y, z);
             if (wood == null) {

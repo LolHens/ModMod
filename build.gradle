@@ -48,6 +48,7 @@ dependencies {
     compile files("lib/mystcraft-1.7.10-0.11.3.00_deobf.jar")
     compile files("lib/Botania r1.6-174_deobf.jar")
     compile files("lib/ThaumicExploration-1.7.10-1.1-37_deobf.jar")
+    compile files("lib/extrautilities-1.2.3_deobf.jar")
 }
 
 processResources {

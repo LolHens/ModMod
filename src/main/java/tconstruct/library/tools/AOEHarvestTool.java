@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import tconstruct.modifiers.tools.ModDepth;
 import tconstruct.modifiers.tools.ModRange;
-import tconstruct.modifiers.tools.ModSneakDetector;
+import tconstruct.modifiers.tools.ModCareful;
 import tconstruct.modifiers.tools.ModUniversal;
 
 public abstract class AOEHarvestTool extends HarvestTool {
@@ -32,7 +32,7 @@ public abstract class AOEHarvestTool extends HarvestTool {
             if (mop == null) {
                 return super.onBlockStartBreak(stack, x, y, z, player);
             } else {
-                if (ModSneakDetector.isAOE(stack, player)) {
+                if (ModCareful.isAOE(stack, player)) {
                     int radiusIncrease = ModRange.getRangeIncrease(stack);
                     int depthIncrease = ModDepth.getDepthIncrease(stack);
 

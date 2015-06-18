@@ -31,7 +31,7 @@ import java.util.Set;
 public class TinkerModification {
     @Handler
     public void init(FMLInitializationEvent event) {
-        ModifyBuilder.registerModifier(new ModSneakDetector(new ItemStack[]{new ItemStack(Items.comparator)}));
+        ModifyBuilder.registerModifier(new ModCareful(new ItemStack[]{new ItemStack(Items.comparator)}));
         ModifyBuilder.registerModifier(new ModRange(new ItemStack[]{new ItemStack(Items.ender_eye), new ItemStack(TinkerArmor.diamondApple)}));
         ModifyBuilder.registerModifier(new ModDepth(new ItemStack[]{new ItemStack(Items.ender_eye), new ItemStack(Items.golden_apple, 1, 1)}));
         ModifyBuilder.registerModifier(new ModConvenient(new ItemStack[]{new ItemStack(Items.apple), new ItemStack(Items.golden_apple), new ItemStack(TinkerArmor.diamondApple)}));
