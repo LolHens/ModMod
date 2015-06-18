@@ -1,8 +1,6 @@
 appeng:
 - precise crafting pattern
 tcon:
-- precise modifier
+- toggleable modifiers
 botania:
 - configurable water flower mana
-extra utilities:
-- compressed x64 generators

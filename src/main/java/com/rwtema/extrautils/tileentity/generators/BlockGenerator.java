@@ -137,21 +137,42 @@ public class BlockGenerator extends BlockMultiBlock implements IMultiBoxBlock, I
 
                     return true;
                 }
-            } else if (player.getCurrentEquippedItem() != null && tile instanceof TileEntityGenerator && player.isSneaking()) {
-                ItemStack item = player.getCurrentEquippedItem();
-                if (item.getItem() == Item.getItemFromBlock(this) && item.stackSize >= 8) {
-                    TileEntityGenerator generator = (TileEntityGenerator) tile;
-                    if (generator.extraMultiplier == 1) {
-                        generator.extraMultiplier = 8;
-                        item.stackSize -= 8;
-                        return true;
-                    }
-                }
             }
+
+            if (addGenerator(worldObj, x, y, z, player)) return true;
 
             player.openGui(ExtraUtilsMod.instance, 0, worldObj, x, y, z);
             return true;
         }
+    }
+
+    private boolean addGenerator(World worldObj, int x, int y, int z, EntityPlayer player) {
+        if (numGenerators != 64) return false;
+
+        int meta = worldObj.getBlockMetadata(x, y, z);
+        TileEntity tile = worldObj.getTileEntity(x, y, z);
+        ItemStack stack = player.getCurrentEquippedItem();
+
+        if (tile == null ||stack == null) return false;
+
+        if (!(tile instanceof TileEntityGenerator)) return false;
+
+        TileEntityGenerator tileGenerator = (TileEntityGenerator) tile;
+
+        if (!(stack.getItem() == Item.getItemFromBlock(this) && stack.getMetadata() == meta)) return false;
+
+        if (stack.stackSize < 1) return false;
+
+        int multiplier = 1;
+
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("extraMultiplier"))
+            multiplier *= stack.getTagCompound().getInteger("extraMultiplier");
+
+        tileGenerator.extraMultiplier += multiplier * stack.stackSize;
+
+        stack.stackSize = 0;
+
+        return true;
     }
 
     public int damageDropped(int par1) {
@@ -371,7 +392,13 @@ public class BlockGenerator extends BlockMultiBlock implements IMultiBoxBlock, I
     }
 
     public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4) {
-        par3List.add("Power Multiplier: x" + this.numGenerators);
+        int multiplier = numGenerators;
+
+        if (par1ItemStack.hasTagCompound() && par1ItemStack.getTagCompound().hasKey("extraMultiplier"))
+            multiplier *= par1ItemStack.getTagCompound().getInteger("extraMultiplier");
+
+        par3List.add("Power Multiplier: x" + multiplier);
+
         if (par1ItemStack.hasTagCompound() && par1ItemStack.getTagCompound().hasKey("Energy")) {
             par3List.add(par1ItemStack.getTagCompound().getInteger("Energy") + " / " + 100000 * this.numGenerators + " RF");
         }
