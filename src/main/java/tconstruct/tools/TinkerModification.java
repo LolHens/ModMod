@@ -11,13 +11,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import tconstruct.armor.TinkerArmor;
+import tconstruct.library.TConstructRegistry;
 import tconstruct.library.crafting.ModifyBuilder;
 import tconstruct.library.modifier.ItemModifier;
 import tconstruct.modifiers.tools.*;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,15 +32,47 @@ import java.util.Set;
 public class TinkerModification {
     @Handler
     public void init(FMLInitializationEvent event) {
-        ModifyBuilder.registerModifier(new ModCareful(new ItemStack[]{new ItemStack(Items.comparator)}));
-        ModifyBuilder.registerModifier(new ModRange(new ItemStack[]{new ItemStack(Items.ender_eye), new ItemStack(TinkerArmor.diamondApple)}));
-        ModifyBuilder.registerModifier(new ModDepth(new ItemStack[]{new ItemStack(Items.ender_eye), new ItemStack(Items.golden_apple, 1, 1)}));
-        ModifyBuilder.registerModifier(new ModConvenient(new ItemStack[]{new ItemStack(Items.apple), new ItemStack(Items.golden_apple), new ItemStack(TinkerArmor.diamondApple)}));
-        ModifyBuilder.registerModifier(new ModFlightSpeed(new ItemStack[]{new ItemStack(Items.slime_ball)}));
+        ModifyBuilder.registerModifier(new ModSneakDetector(new ItemStack[]{
+                new ItemStack(Items.comparator),
+                new ItemStack(Items.redstone)
+        }, false));
+        ModifyBuilder.registerModifier(new ModSneakDetector(new ItemStack[]{
+                new ItemStack(Items.comparator),
+                new ItemStack(Blocks.redstone_torch)
+        }, true));
+        ModifyBuilder.registerModifier(new ModRange(new ItemStack[]{
+                new ItemStack(Items.ender_eye),
+                new ItemStack(TinkerArmor.diamondApple)
+        }));
+        ModifyBuilder.registerModifier(new ModDepth(new ItemStack[]{
+                new ItemStack(Items.ender_eye),
+                new ItemStack(Items.golden_apple, 1, 1)
+        }));
+        ModifyBuilder.registerModifier(new ModConvenient(new ItemStack[]{
+                new ItemStack(Items.apple),
+                new ItemStack(Items.golden_apple),
+                new ItemStack(TinkerArmor.diamondApple)
+        }));
+        ModifyBuilder.registerModifier(new ModFlightSpeed(new ItemStack[]{
+                new ItemStack(Items.slime_ball)
+        }));
 
-        ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{new ItemStack(Blocks.dragon_egg), new ItemStack(Items.diamond), new ItemStack(Blocks.gold_block)}, "Tier3Free"));
-        ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{new ItemStack(Blocks.dragon_egg), new ItemStack(Blocks.diamond_block), new ItemStack(Items.golden_apple, 1, 1)}, "Tier3.5Free"));
-        ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{new ItemStack(Blocks.dragon_egg), new ItemStack(Items.nether_star)}, "Tier4Free"));
+        ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{
+                new ItemStack(Blocks.dragon_egg),
+                new ItemStack(Items.diamond),
+                new ItemStack(Blocks.gold_block)
+        }, "Tier3Free"));
+        ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{
+                new ItemStack(Blocks.dragon_egg),
+                new ItemStack(Blocks.diamond_block),
+                new ItemStack(Items.golden_apple, 1, 1)
+        }, "Tier3.5Free"));
+        ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{
+                new ItemStack(Blocks.dragon_egg),
+                new ItemStack(Items.nether_star)
+        }, "Tier4Free"));
+
+        TConstructRegistry.registerActiveToolMod(new SneakListenerMod());
     }
 
     public static boolean useToolStationItem(ItemStack stack) {
@@ -57,9 +90,7 @@ public class TinkerModification {
     public static Set<String> getModifierKeys() {
         Set<String> keys = new HashSet<String>();
 
-        for (ItemModifier itemModifier : ModifyBuilder.instance.itemModifiers) {
-            keys.add(itemModifier.key);
-        }
+        for (ItemModifier itemModifier : ModifyBuilder.instance.itemModifiers) keys.add(itemModifier.key);
 
         return keys;
     }
@@ -83,18 +114,17 @@ public class TinkerModification {
         return null;
     }
 
-    public static List<NBTBase> getModifierTags(ItemStack tool) {
+    public static Map<String, NBTBase> getModifierTags(ItemStack tool) {
         if (tool == null || !tool.hasTagCompound() || !tool.getTagCompound().hasKey("InfiTool")) return null;
 
         NBTTagCompound infiTool = tool.getTagCompound().getCompoundTag("InfiTool");
 
         Set<String> keys = getModifierKeys();
 
-        List<NBTBase> nbts = new ArrayList<NBTBase>();
+        Map<String, NBTBase> nbts = new HashMap<String, NBTBase>();
 
-        for (String key : keys) {
-            if (key != null && infiTool.hasKey(key)) nbts.add(infiTool.getTag(key));
-        }
+        for (String key : keys)
+            if (key != null && infiTool.hasKey(key)) nbts.put(key, infiTool.getTag(key));
 
         return nbts;
     }
