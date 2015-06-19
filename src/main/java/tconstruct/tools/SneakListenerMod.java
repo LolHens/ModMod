@@ -22,28 +22,29 @@ import java.util.Set;
 public class SneakListenerMod extends ActiveToolMod {
     @Override
     public void updateTool(ToolCore tool, ItemStack stack, World world, Entity entity) {
-        Map<String, NBTBase> modifierTags = TinkerModification.getModifierTags(stack);
-
         NBTTagCompound modTag = TinkerModification.getModifierTag(stack, ModSneakDetector.class);
         if (modTag == null) return;
 
-        if (checkModifiersChanged(modifierTags, modTag)) disableSneakModListener(modTag);
+        if (checkModifiersChanged(stack, modTag)) disableSneakModListener(modTag);
 
-        swap(stack.getTagCompound(), modTag, entity.isSneaking());
+        swap(stack.getTagCompound().getCompoundTag("InfiTool"), modTag, entity.isSneaking());
     }
 
-    private boolean checkModifiersChanged(Map<String, NBTBase> modifierTags, NBTTagCompound modTag) {
+    private boolean checkModifiersChanged(ItemStack stack, NBTTagCompound modTag) {
         if (!modTag.hasKey("current", new NBTTagCompound().getId())) return false;
         NBTTagCompound current = modTag.getCompoundTag("current");
 
         boolean inverted = current.getBoolean("inverted");
 
+        NBTTagCompound modifiers = current.getCompoundTag("modifiers");
+
         boolean foundModifier = false;
 
-        for (Map.Entry<String, NBTBase> entry : modifierTags.entrySet()) {
+        for (Map.Entry<String, NBTBase> entry : TinkerModification.getModifierTags(stack).entrySet()) {
             if (entry.getKey().equals("SneakDetector")) continue;
-            if (!current.hasKey(entry.getKey(), entry.getValue().getId())
-                    /*|| !current.getTag(entry.getKey()).equals(entry.getValue())*/) {
+
+            if (!modifiers.hasKey(entry.getKey(), entry.getValue().getId())
+                    || !modifiers.getTag(entry.getKey()).equals(entry.getValue())) {
                 foundModifier = true;
                 applyToSneakListener(entry.getKey(), modTag, inverted);
             }

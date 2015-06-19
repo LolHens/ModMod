@@ -44,8 +44,11 @@ public class ModSneakDetector extends ItemModifier {
             {
                 NBTTagCompound modifiers = new NBTTagCompound();
                 {
-                    for (Map.Entry<String, NBTBase> mod : TinkerModification.getModifierTags(tool).entrySet())
-                        if (!mod.getKey().equals("SneakDetector")) modifiers.setTag(mod.getKey(), mod.getValue());
+                    for (Map.Entry<String, NBTBase> entry : TinkerModification.getModifierTags(tool).entrySet()) {
+                        if (entry.getKey().equals("SneakDetector")) continue;
+
+                        modifiers.setTag(entry.getKey(), entry.getValue());
+                    }
                 }
                 current.setTag("modifiers", modifiers);
 
@@ -53,20 +56,20 @@ public class ModSneakDetector extends ItemModifier {
             }
             sneakDetector.setTag("current", current);
 
-            sneakDetector.setTag("on", new NBTTagList() {
+            if (!sneakDetector.hasKey("on")) sneakDetector.setTag("on", new NBTTagList() {
                 {
                     appendTag(new NBTTagString());
                     removeTag(0);
                 }
             });
-            sneakDetector.setTag("off", new NBTTagList() {
+            if (!sneakDetector.hasKey("off")) sneakDetector.setTag("off", new NBTTagList() {
                 {
                     appendTag(new NBTTagString());
                     removeTag(0);
                 }
             });
 
-            sneakDetector.setTag("swap", new NBTTagCompound());
+            if (!sneakDetector.hasKey("swap")) sneakDetector.setTag("swap", new NBTTagCompound());
         }
     }
 }
