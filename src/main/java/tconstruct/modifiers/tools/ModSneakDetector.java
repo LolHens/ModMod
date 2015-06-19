@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.util.EnumChatFormatting;
 import tconstruct.library.modifier.ItemModifier;
 import tconstruct.library.tools.ToolCore;
 import tconstruct.tools.TinkerModification;
@@ -72,5 +73,9 @@ public class ModSneakDetector extends ItemModifier {
 
             if (!sneakDetector.hasKey("swap")) sneakDetector.setTag("swap", new NBTTagCompound());
         }
+    }
+
+    public void addTooltip(ItemStack tool, String modName) {
+        addToolTip(tool, EnumChatFormatting.GOLD + (inverted ? "! " : "") + "Switchable: " + modName, key);
     }
 }

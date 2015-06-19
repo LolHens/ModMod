@@ -27,6 +27,6 @@ public class ModCareful extends ModBoolean {
 
     public static boolean isAOE(ItemStack tool, EntityPlayer player) {
         NBTBase.NBTPrimitive nbt = TinkerModification.getModifierTag(tool, ModCareful.class);
-        return !(nbt != null && nbt.getByte() != 0 && player.isSneaking());
+        return nbt == null || nbt.getByte() == 0;
     }
 }

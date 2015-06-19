@@ -43,15 +43,17 @@ public class SneakListenerMod extends ActiveToolMod {
             if (!modifiers.hasKey(entry.getKey(), entry.getValue().getId())
                     || !modifiers.getTag(entry.getKey()).equals(entry.getValue())) {
                 foundModifier = true;
-                applyToSneakListener(entry.getKey(), modTag, inverted);
+                applyToSneakListener(stack, entry.getKey(), modTag, inverted);
             }
         }
 
         return foundModifier;
     }
 
-    private void applyToSneakListener(String modifierKey, NBTTagCompound modTag, boolean inverted) {
+    private void applyToSneakListener(ItemStack stack, String modifierKey, NBTTagCompound modTag, boolean inverted) {
         NBTTagList toggleList = modTag.getTagList(inverted ? "off" : "on", new NBTTagString().getId());
+
+        new ModSneakDetector(new ItemStack[]{}, inverted).addTooltip(stack, modifierKey);
 
         toggleList.appendTag(new NBTTagString(modifierKey));
     }
