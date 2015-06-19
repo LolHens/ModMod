@@ -58,7 +58,7 @@ public class ModBlockPlacer extends ModString {
                 return null;
         }
 
-        return itemStack;
+        return dispenser ? itemStack : null;
     }
 
     public static Item getPreferredItem(ItemStack stack) {

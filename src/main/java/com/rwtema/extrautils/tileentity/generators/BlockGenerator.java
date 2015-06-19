@@ -153,7 +153,7 @@ public class BlockGenerator extends BlockMultiBlock implements IMultiBoxBlock, I
         TileEntity tile = worldObj.getTileEntity(x, y, z);
         ItemStack stack = player.getCurrentEquippedItem();
 
-        if (tile == null ||stack == null) return false;
+        if (tile == null || stack == null) return false;
 
         if (!(tile instanceof TileEntityGenerator)) return false;
 

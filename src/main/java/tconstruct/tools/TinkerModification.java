@@ -4,7 +4,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mantle.pulsar.pulse.Handler;
 import mantle.pulsar.pulse.Pulse;
-import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -31,6 +30,8 @@ import java.util.Set;
         description = "A Modification for Tinkers\' Construct."
 )
 public class TinkerModification {
+    public static int toggleExtraModifiers = 2;
+
     @Handler
     public void init(FMLInitializationEvent event) {
         ModifyBuilder.registerModifier(new ModSneakDetector(new ItemStack[]{

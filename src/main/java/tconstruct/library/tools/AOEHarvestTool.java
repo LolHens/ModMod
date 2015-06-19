@@ -9,9 +9,9 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
+import tconstruct.modifiers.tools.ModCareful;
 import tconstruct.modifiers.tools.ModDepth;
 import tconstruct.modifiers.tools.ModRange;
-import tconstruct.modifiers.tools.ModCareful;
 import tconstruct.modifiers.tools.ModUniversal;
 
 public abstract class AOEHarvestTool extends HarvestTool {

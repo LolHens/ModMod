@@ -23,7 +23,7 @@ public class SneakListenerMod extends ActiveToolMod {
         if (modTag == null) return;
 
         if (modTag.hasKey("current", new NBTTagCompound().getId())
-                && checkModifiersChanged(stack, modTag)) disableSneakModListener(modTag);
+                && checkModifiersChanged(stack, modTag)) disableSneakModListener(stack, modTag);
 
         swap(stack.getTagCompound().getCompoundTag("InfiTool"), modTag, entity.isSneaking());
     }
@@ -58,7 +58,26 @@ public class SneakListenerMod extends ActiveToolMod {
         toggleList.appendTag(new NBTTagString(modifierKey));
     }
 
-    private void disableSneakModListener(NBTTagCompound modTag) {
+    private void disableSneakModListener(ItemStack stack, NBTTagCompound modTag) {
+        int newTmpModifierCount = stack.getTagCompound().getCompoundTag("InfiTool").getInteger("Modifiers");
+        int oldTmpModifierCount = modTag.getCompoundTag("current").getInteger("modifierCount");
+        int extraModifierCount = modTag.getInteger("extraModifiers");
+
+        int modifierUsage = oldTmpModifierCount - newTmpModifierCount;
+
+        extraModifierCount -= modifierUsage;
+        modifierUsage = 0;
+
+        if (extraModifierCount < 0) {
+            modifierUsage = 0 - extraModifierCount;
+            extraModifierCount = 0;
+        }
+
+        int modifierCount = newTmpModifierCount - (extraModifierCount + modifierUsage);
+
+        stack.getTagCompound().getCompoundTag("InfiTool").setInteger("Modifiers", modifierCount);
+        modTag.setInteger("extraModifiers", extraModifierCount);
+
         modTag.removeTag("current");
     }
 

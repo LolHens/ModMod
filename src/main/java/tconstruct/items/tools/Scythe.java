@@ -28,8 +28,8 @@ import tconstruct.library.ActiveToolMod;
 import tconstruct.library.TConstructRegistry;
 import tconstruct.library.tools.AbilityHelper;
 import tconstruct.library.tools.Weapon;
-import tconstruct.modifiers.tools.ModRange;
 import tconstruct.modifiers.tools.ModCareful;
+import tconstruct.modifiers.tools.ModRange;
 import tconstruct.tools.TinkerTools;
 
 import java.util.ArrayList;

@@ -10,7 +10,7 @@ import tconstruct.tools.TinkerModification;
 /**
  * Created by LolHens on 19.06.2015.
  */
-public class ModStringSet extends ItemModifier {
+public class ModStringSet extends ItemModifier { // TODO: make this functional, make ModBlockPlacer use this
     String color;
     String tooltipName;
     String value;

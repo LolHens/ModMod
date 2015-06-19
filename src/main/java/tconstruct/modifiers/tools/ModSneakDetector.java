@@ -42,6 +42,9 @@ public class ModSneakDetector extends ItemModifier {
         }
 
         {
+            if (!sneakDetector.hasKey("extraModifiers"))
+                sneakDetector.setInteger("extraModifiers", TinkerModification.toggleExtraModifiers);
+
             NBTTagCompound current = new NBTTagCompound();
             {
                 NBTTagCompound modifiers = new NBTTagCompound();
@@ -53,6 +56,12 @@ public class ModSneakDetector extends ItemModifier {
                     }
                 }
                 current.setTag("modifiers", modifiers);
+
+                int modifierCount = tags.getInteger("Modifiers");
+                int extraModifierCount = sneakDetector.getInteger("extraModifiers");
+                int tmpModifierCount = modifierCount + extraModifierCount;
+                tags.setInteger("Modifiers", tmpModifierCount);
+                current.setInteger("modifierCount", tmpModifierCount);
 
                 current.setBoolean("inverted", inverted);
             }
