@@ -40,19 +40,31 @@ public class TinkerModification {
                 new ItemStack(Items.comparator),
                 new ItemStack(Blocks.redstone_torch)
         }, true));
+
         ModifyBuilder.registerModifier(new ModRange(new ItemStack[]{
                 new ItemStack(Items.ender_eye),
                 new ItemStack(TinkerArmor.diamondApple)
         }));
+
         ModifyBuilder.registerModifier(new ModDepth(new ItemStack[]{
                 new ItemStack(Items.ender_eye),
                 new ItemStack(Items.golden_apple, 1, 1)
         }));
+
         ModifyBuilder.registerModifier(new ModConvenient(new ItemStack[]{
                 new ItemStack(Items.apple),
                 new ItemStack(Items.golden_apple),
                 new ItemStack(TinkerArmor.diamondApple)
         }));
+
+        ModifyBuilder.registerModifier(new ModCareful(new ItemStack[]{
+                new ItemStack(Blocks.glass_pane)
+        }));
+
+        ModifyBuilder.registerModifier(new ModPrecision(new ItemStack[]{
+                new ItemStack(Blocks.wool)
+        }));
+
         ModifyBuilder.registerModifier(new ModFlightSpeed(new ItemStack[]{
                 new ItemStack(Items.slime_ball)
         }));
