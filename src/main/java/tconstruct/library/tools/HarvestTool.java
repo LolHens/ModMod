@@ -22,6 +22,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import tconstruct.modifiers.tools.ModBlockPlacer;
 import tconstruct.modifiers.tools.ModConvenient;
 import tconstruct.modifiers.tools.ModPrecision;
 import tconstruct.modifiers.tools.ModUniversal;
@@ -189,73 +190,98 @@ public abstract class HarvestTool extends ToolCore {
     }
 
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float clickX, float clickY, float clickZ) {
+        Item preferredItem = ModBlockPlacer.getPreferredItem(stack);
+
+        if (preferredItem != null) {
+            for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+                ItemStack invStack = player.inventory.mainInventory[i];
+                if (invStack == null) continue;
+
+                if (invStack.getItem() == preferredItem) {
+                    if (useItemBlock(invStack, i, stack, player, world, x, y, z, side, clickX, clickY, clickZ))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         boolean used = false;
+
         int hotbarSlot = player.inventory.currentItem;
         int itemSlot = hotbarSlot == 0 ? 8 : hotbarSlot + 1;
         ItemStack nearbyStack = null;
         if (hotbarSlot < 8) {
             nearbyStack = player.inventory.getStackInSlot(itemSlot);
-            if (nearbyStack != null) {
-                Item item = nearbyStack.getItem();
-                if (item instanceof ItemBlock || item != null && item == TinkerTools.openBlocksDevNull) {
-                    int posX = x;
-                    int posY = y;
-                    int posZ = z;
-                    int playerPosX = (int) Math.floor(player.posX);
-                    int playerPosY = (int) Math.floor(player.posY);
-                    int playerPosZ = (int) Math.floor(player.posZ);
-                    if (side == 0) {
-                        posY = y - 1;
-                    }
 
-                    if (side == 1) {
-                        ++posY;
-                    }
+            used = useItemBlock(nearbyStack, itemSlot, stack, player, world, x, y, z, side, clickX, clickY, clickZ);
+        }
 
-                    if (side == 2) {
-                        posZ = z - 1;
-                    }
+        return used;
+    }
 
-                    if (side == 3) {
-                        ++posZ;
-                    }
+    public boolean useItemBlock(ItemStack itemStack, int itemSlot, ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float clickX, float clickY, float clickZ) {
+        boolean used = false;
+        if (itemStack != null) {
+            Item item = itemStack.getItem();
+            if (item instanceof ItemBlock || item != null && item == TinkerTools.openBlocksDevNull) {
+                int posX = x;
+                int posY = y;
+                int posZ = z;
+                int playerPosX = (int) Math.floor(player.posX);
+                int playerPosY = (int) Math.floor(player.posY);
+                int playerPosZ = (int) Math.floor(player.posZ);
+                if (side == 0) {
+                    posY = y - 1;
+                }
 
-                    if (side == 4) {
-                        posX = x - 1;
-                    }
+                if (side == 1) {
+                    ++posY;
+                }
 
-                    if (side == 5) {
-                        ++posX;
-                    }
+                if (side == 2) {
+                    posZ = z - 1;
+                }
 
-                    if (posX == playerPosX && (posY == playerPosY || posY == playerPosY + 1 || posY == playerPosY - 1) && posZ == playerPosZ) {
-                        return false;
-                    }
+                if (side == 3) {
+                    ++posZ;
+                }
 
-                    int dmg = nearbyStack.getMetadata();
-                    int count = nearbyStack.stackSize;
-                    if (item == TinkerTools.openBlocksDevNull) {
-                        player.inventory.currentItem = itemSlot;
-                        item.onItemUse(nearbyStack, player, world, x, y, z, side, clickX, clickY, clickZ);
-                        player.inventory.currentItem = hotbarSlot;
-                        player.swingItem();
-                    } else {
-                        used = item.onItemUse(nearbyStack, player, world, x, y, z, side, clickX, clickY, clickZ);
-                    }
+                if (side == 4) {
+                    posX = x - 1;
+                }
 
-                    if (player.capabilities.isCreativeMode) {
-                        nearbyStack.setMetadata(dmg);
-                        nearbyStack.stackSize = count;
-                    }
+                if (side == 5) {
+                    ++posX;
+                }
 
-                    if (nearbyStack.stackSize < 1) {
-                        nearbyStack = null;
-                        player.inventory.setInventorySlotContents(itemSlot, (ItemStack) null);
-                    }
+                if (posX == playerPosX && (posY == playerPosY || posY == playerPosY + 1 || posY == playerPosY - 1) && posZ == playerPosZ) {
+                    return false;
+                }
+
+                int dmg = itemStack.getMetadata();
+                int count = itemStack.stackSize;
+                if (item == TinkerTools.openBlocksDevNull) {
+                    int prevSlot = player.inventory.currentItem;
+                    player.inventory.currentItem = itemSlot;
+                    item.onItemUse(itemStack, player, world, x, y, z, side, clickX, clickY, clickZ);
+                    player.inventory.currentItem = prevSlot;
+                    player.swingItem();
+                } else {
+                    used = item.onItemUse(itemStack, player, world, x, y, z, side, clickX, clickY, clickZ);
+                }
+
+                if (player.capabilities.isCreativeMode) {
+                    itemStack.setMetadata(dmg);
+                    itemStack.stackSize = count;
+                }
+
+                if (itemStack.stackSize < 1) {
+                    itemStack = null;
+                    player.inventory.setInventorySlotContents(itemSlot, (ItemStack) null);
                 }
             }
         }
-
         return used;
     }
 

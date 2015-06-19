@@ -4,6 +4,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mantle.pulsar.pulse.Handler;
 import mantle.pulsar.pulse.Pulse;
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -67,6 +68,10 @@ public class TinkerModification {
 
         ModifyBuilder.registerModifier(new ModFlightSpeed(new ItemStack[]{
                 new ItemStack(Items.slime_ball)
+        }));
+
+        ModifyBuilder.registerModifier(new ModBlockPlacer(new ItemStack[]{
+                new ItemStack(Blocks.dispenser)
         }));
 
         ModifyBuilder.registerModifier(new ModExtraModifier(new ItemStack[]{
