@@ -9,6 +9,7 @@ import tconstruct.library.modifier.ItemModifier;
 import tconstruct.library.tools.ToolCore;
 import tconstruct.tools.TinkerModification;
 
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -44,7 +45,7 @@ public class ModSneakDetector extends ItemModifier {
             {
                 NBTTagCompound modifiers = new NBTTagCompound();
                 {
-                    for (Map.Entry<String, NBTBase> entry : TinkerModification.getModifierTags(tool).entrySet()) {
+                    for (Map.Entry<String, NBTBase> entry : new HashSet<Map.Entry<String, NBTBase>>(TinkerModification.getModifierTags(tool).entrySet())) {
                         if (entry.getKey().equals("SneakDetector")) continue;
 
                         modifiers.setTag(entry.getKey(), entry.getValue());

@@ -11,10 +11,7 @@ import tconstruct.library.ActiveToolMod;
 import tconstruct.library.tools.ToolCore;
 import tconstruct.modifiers.tools.ModSneakDetector;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by LolHens on 18.06.2015.
@@ -25,13 +22,13 @@ public class SneakListenerMod extends ActiveToolMod {
         NBTTagCompound modTag = TinkerModification.getModifierTag(stack, ModSneakDetector.class);
         if (modTag == null) return;
 
-        if (checkModifiersChanged(stack, modTag)) disableSneakModListener(modTag);
+        if (modTag.hasKey("current", new NBTTagCompound().getId())
+                && checkModifiersChanged(stack, modTag)) disableSneakModListener(modTag);
 
         swap(stack.getTagCompound().getCompoundTag("InfiTool"), modTag, entity.isSneaking());
     }
 
     private boolean checkModifiersChanged(ItemStack stack, NBTTagCompound modTag) {
-        if (!modTag.hasKey("current", new NBTTagCompound().getId())) return false;
         NBTTagCompound current = modTag.getCompoundTag("current");
 
         boolean inverted = current.getBoolean("inverted");
@@ -40,7 +37,7 @@ public class SneakListenerMod extends ActiveToolMod {
 
         boolean foundModifier = false;
 
-        for (Map.Entry<String, NBTBase> entry : TinkerModification.getModifierTags(stack).entrySet()) {
+        for (Map.Entry<String, NBTBase> entry : new HashSet<Map.Entry<String, NBTBase>>(TinkerModification.getModifierTags(stack).entrySet())) {
             if (entry.getKey().equals("SneakDetector")) continue;
 
             if (!modifiers.hasKey(entry.getKey(), entry.getValue().getId())
@@ -72,7 +69,7 @@ public class SneakListenerMod extends ActiveToolMod {
 
         NBTTagCompound swap = modTag.getCompoundTag("swap");
 
-        for (String key : (Set<String>) swap.getKeySet())
+        for (String key : new HashSet<String>((Set<String>) swap.getKeySet()))
             if (!toggleList.contains(key)) {
                 tagCompound.setTag(key, swap.getTag(key));
                 swap.removeTag(key);

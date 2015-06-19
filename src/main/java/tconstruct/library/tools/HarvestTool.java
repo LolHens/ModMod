@@ -73,8 +73,6 @@ public abstract class HarvestTool extends ToolCore {
                             super.getDigSpeed(stack, block, meta));
         }
 
-        if (ModPrecision.isPrecise(stack)) digSpeed = Math.min(digSpeed, 30f);
-
         return digSpeed;
     }
 
@@ -115,6 +113,8 @@ public abstract class HarvestTool extends ToolCore {
     }
 
     private float getBreakSpeed(ItemStack stack, Block block, int meta, float originalBreakSpeed) {
+        if (ModPrecision.isPrecise(stack)) return Math.min(originalBreakSpeed, 0.9f);
+
         return originalBreakSpeed;
     }
 
