@@ -190,19 +190,20 @@ public abstract class HarvestTool extends ToolCore {
     }
 
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float clickX, float clickY, float clickZ) {
-        Item preferredItem = ModBlockPlacer.getPreferredItem(stack);
+        Set<Item> preferredItems = ModBlockPlacer.getPreferredItems(stack);
 
-        if (preferredItem != null) {
-            for (int i = 0; i < player.inventory.mainInventory.length; i++) {
-                ItemStack invStack = player.inventory.mainInventory[i];
-                if (invStack == null) continue;
+        if (!preferredItems.isEmpty()) {
+            for (Item preferredItem : preferredItems) {
+                for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+                    ItemStack invStack = player.inventory.mainInventory[i];
+                    if (invStack == null) continue;
 
-                if (invStack.getItem() == preferredItem) {
-                    if (useItemBlock(invStack, i, stack, player, world, x, y, z, side, clickX, clickY, clickZ))
-                        return true;
+                    if (invStack.getItem() == preferredItem) {
+                        if (useItemBlock(invStack, i, stack, player, world, x, y, z, side, clickX, clickY, clickZ))
+                            return true;
+                    }
                 }
             }
-
             return false;
         }
 

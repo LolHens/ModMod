@@ -90,9 +90,11 @@ public class SneakListenerMod extends ActiveToolMod {
 
         NBTTagCompound swap = modTag.getCompoundTag("swap");
 
+        Map<String, NBTBase> swapTmp = new HashMap<String, NBTBase>();
+
         for (String key : new HashSet<String>((Set<String>) swap.getKeySet()))
             if (!toggleList.contains(key)) {
-                tagCompound.setTag(key, swap.getTag(key));
+                swapTmp.put(key, swap.getTag(key));
                 swap.removeTag(key);
             }
 
@@ -101,5 +103,8 @@ public class SneakListenerMod extends ActiveToolMod {
                 swap.setTag(key, tagCompound.getTag(key));
                 tagCompound.removeTag(key);
             }
+
+        for (Map.Entry<String, NBTBase> entry : swapTmp.entrySet())
+            tagCompound.setTag(entry.getKey(), entry.getValue());
     }
 }

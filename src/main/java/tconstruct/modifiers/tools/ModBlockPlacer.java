@@ -4,43 +4,34 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumChatFormatting;
 import tconstruct.library.tools.HarvestTool;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created by LolHens on 19.06.2015.
  */
-public class ModBlockPlacer extends ModString {
+public class ModBlockPlacer extends ModStringSet {
     public ModBlockPlacer(ItemStack[] items) {
-        super(items, null, -1, "BlockPlacer", EnumChatFormatting.AQUA.toString(), null);
+        super(items, null, -1, "BlockPlacer", EnumChatFormatting.AQUA.toString(), "BlockPlacer");
     }
 
     protected boolean canModify(ItemStack tool, ItemStack[] input) {
-        NBTTagCompound tags = tool.getTagCompound().getCompoundTag("InfiTool");
         return tool.getItem() instanceof HarvestTool
-                && tags.getInteger("Modifiers") > 0
-                && !tags.hasKey(super.key, new NBTTagString().getId());
-    }
-
-    public void modify(ItemStack[] input, ItemStack tool) {
-        ItemStack stack = getItemBlock(input);
-
-        this.tooltipName = "BlockPlacer (" + stack.getDisplayName() + ")";
-
-        this.value = stack.getUnlocalizedName();
-
-        super.modify(input, tool);
+                && super.canModify(tool, input);
     }
 
     public boolean matches(ItemStack[] recipe, ItemStack input) {
-        if (!this.canModify(input, recipe)) {
-            return false;
-        }
-        return getItemBlock(recipe) != null;
+        ItemStack stack = getItemBlock(recipe);
+
+        if (stack == null) return false;
+
+        this.value = stack.getItem().getUnlocalizedName();
+
+        return canModify(input, recipe);
     }
 
     private static ItemStack getItemBlock(ItemStack[] recipe) {
@@ -61,21 +52,28 @@ public class ModBlockPlacer extends ModString {
         return dispenser ? itemStack : null;
     }
 
-    public static Item getPreferredItem(ItemStack stack) {
-        String itemName = ModString.getValue(stack, ModBlockPlacer.class);
+    public static Set<Item> getPreferredItems(ItemStack stack) {
+        Set<String> itemNames = ModStringSet.getValues(stack, ModBlockPlacer.class);
 
-        if (itemName == null) return null;
+        Set<Item> items = new HashSet<Item>();
 
-        Iterator<Item> i = Item.itemRegistry.iterator();
+        if (itemNames == null) return items;
 
-        while (i.hasNext()) {
-            Item item = i.next();
+        for (String itemName : itemNames) {
+            Iterator<Item> i = Item.itemRegistry.iterator();
 
-            if (item == null || !(item instanceof ItemBlock)) continue;
+            while (i.hasNext()) {
+                Item item = i.next();
 
-            if (item.getUnlocalizedName().equals(itemName)) return (Item) item;
+                if (item == null || !(item instanceof ItemBlock)) continue;
+
+                if (item.getUnlocalizedName().equals(itemName)) {
+                    items.add((Item) item);
+                    break;
+                }
+            }
         }
 
-        return null;
+        return items;
     }
 }

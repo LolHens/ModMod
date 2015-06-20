@@ -105,6 +105,14 @@ public class TinkerModification {
         return null;
     }
 
+    public static Class<? extends ItemModifier> getModifierClass(String key) {
+        for (ItemModifier itemModifier : ModifyBuilder.instance.itemModifiers) {
+            if (itemModifier.key.equals(key)) return itemModifier.getClass();
+        }
+
+        return null;
+    }
+
     public static Set<String> getModifierKeys() {
         Set<String> keys = new HashSet<String>();
 

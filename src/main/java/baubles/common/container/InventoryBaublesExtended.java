@@ -51,7 +51,12 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
     @Override
     public int getSizeInventory() {
-        return getStandardInvSize() + getContainerBaubles().length;
+        StackRef[] containerBaubles = getContainerBaubles();
+        try {
+            return getStandardInvSize() + containerBaubles.length;
+        } catch (NullPointerException e) {
+            throw new NullPointerException("containerBaubles: " + containerBaubles);
+        }
     }
 
     public int getStandardInvSize() {
