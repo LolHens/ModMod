@@ -123,6 +123,7 @@ public class TConstruct {
         pulsar.registerPulse(new TinkerMechworks());
         pulsar.registerPulse(new TinkerArmor());
         pulsar.registerPulse(new TinkerWeaponry());
+        pulsar.registerPulse(new TinkerModification());
         pulsar.registerPulse(new TinkerThaumcraft());
         pulsar.registerPulse(new TinkerWaila());
         pulsar.registerPulse(new TinkerBuildCraft());
@@ -135,7 +136,6 @@ public class TConstruct {
         pulsar.registerPulse(new TinkerFMP());
         pulsar.registerPulse(new TinkerUBC());
         pulsar.registerPulse(new TinkerGears());
-        pulsar.registerPulse(new TinkerModification());
         TConstructRegistry.materialTab = new TConstructCreativeTab("TConstructMaterials");
         TConstructRegistry.toolTab = new TConstructCreativeTab("TConstructTools");
         TConstructRegistry.partTab = new TConstructCreativeTab("TConstructParts");

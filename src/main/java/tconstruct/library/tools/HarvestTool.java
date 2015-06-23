@@ -35,8 +35,6 @@ import java.util.Set;
 public abstract class HarvestTool extends ToolCore {
     public HarvestTool(int baseDamage) {
         super(baseDamage);
-
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     public boolean onBlockStartBreak(ItemStack stack, int x, int y, int z, EntityPlayer player) {
@@ -77,7 +75,6 @@ public abstract class HarvestTool extends ToolCore {
         return digSpeed;
     }
 
-    @SubscribeEvent
     public void onBlockBreak(PlayerEvent.BreakSpeed e) {
         ItemStack itemStack = e.entityPlayer.inventory.getCurrentItem();
 
