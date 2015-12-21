@@ -38,17 +38,17 @@ repositories {
 dependencies {
     compile files("lib/Thaumcraft-1.7.10-4.2.3.5_deobf.jar")
     compile files("lib/Baubles-deobf-1.7.10-1.0.1.10.jar")
-    compile files("lib/TConstruct-1.7.10-1.8.3b_deobf.jar")
+    compile files("lib/TConstruct-1.7.10-1.8.8_deobf.jar")
     compile files("lib/CoFHCore-[1.7.10]3.0.0RC7-211_deobf.jar")
     compile files("lib/1.7.10-Battlegear-Bin-1.0.5.6_deobf.jar")
     compile files("lib/1.7.10-zeldaswordskills-2.2.5.c_deobf.jar")
     compile files("lib/1.7.10-dynamicswordskills-1.6.5-deobf.jar")
     compile files("lib/Mantle-1.7.10-0.3.2_deobf.jar")
-    compile files("lib/ThaumicTinkerer-2.5-1.7.10-481_deobf.jar")
-    compile files("lib/mystcraft-1.7.10-0.11.3.00_deobf.jar")
-    compile files("lib/Botania r1.6-174_deobf.jar")
-    compile files("lib/ThaumicExploration-1.7.10-1.1-37_deobf.jar")
-    compile files("lib/extrautilities-1.2.3_deobf.jar")
+    compile files("lib/ThaumicTinkerer-2.5-1.7.10-512_deobf.jar")
+    compile files("lib/mystcraft-1.7.10-0.12.3.01_deobf.jar")
+    compile files("lib/Botania r1.7-237_deobf.jar")
+    compile files("lib/ThaumicExploration-1.7.10-1.1-53_deobf.jar")
+    compile files("lib/extrautilities-1.2.12_deobf.jar")
 }
 
 processResources {

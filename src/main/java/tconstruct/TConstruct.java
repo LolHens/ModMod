@@ -13,6 +13,7 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent;
+import cpw.mods.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import cpw.mods.fml.common.network.NetworkCheckHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -44,6 +45,7 @@ import tconstruct.plugins.ic2.TinkerIC2;
 import tconstruct.plugins.imc.TinkerAE2;
 import tconstruct.plugins.imc.TinkerBuildCraft;
 import tconstruct.plugins.imc.TinkerMystcraft;
+import tconstruct.plugins.imc.TinkerRfTools;
 import tconstruct.plugins.mfr.TinkerMFR;
 import tconstruct.plugins.te4.TinkerTE4;
 import tconstruct.plugins.te4.TinkersThermalFoundation;
@@ -62,18 +64,18 @@ import tconstruct.world.TinkerWorld;
 import tconstruct.world.gen.SlimeIslandGen;
 import tconstruct.world.village.*;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
 @Mod(
         modid = "TConstruct",
         name = "TConstruct",
-        version = "1.7.10-1.8.3.build919",
-        dependencies = "required-after:Forge@[10.13.2.1291,11.14);required-after:Mantle@[1.7.10-0.3.2,);after:MineFactoryReloaded@[1.7.10R2.8.0RC7,);after:NotEnoughItems;after:Waila;after:ThermalExpansion@[1.7.10R4.0.0RC2,);after:ThermalFoundation@[1.7.10R1.0.0RC3,);before:UndergroundBiomes",
-        acceptedMinecraftVersions = "[1.7.10]"
+        version = "1.7.10-1.8.8.build988",
+        dependencies = "required-after:Forge@[10.13.3.1384,11.14);required-after:Mantle@[1.7.10-0.3.2,);after:MineFactoryReloaded@[1.7.10R2.8.0RC7,);after:ThermalExpansion@[1.7.10R4.0.0RC2,);after:ThermalFoundation@[1.7.10R1.0.0RC3,);after:armourersWorkshop@[1.7.10-0.28.0,);after:CoFHAPI|energy;after:CoFHCore;after:battlegear2;after:ZeldaItemAPI;after:DynamicSkillsAPI;after:NotEnoughItems;after:Waila;before:UndergroundBiomes"
 )
 public class TConstruct {
-    public static final String modVersion = "1.7.10-1.8.3.build919";
+    public static final String modVersion = "1.7.10-1.8.8.build988";
     public static final int ingotLiquidValue = 144;
     public static final int oreLiquidValue = 288;
     public static final int blockLiquidValue = 1296;
@@ -111,7 +113,7 @@ public class TConstruct {
 
     @NetworkCheckHandler
     public boolean matchModVersions(Map<String, String> remoteVersions, Side side) {
-        return remoteVersions.containsKey("TConstruct") && "1.7.10-1.8.3.build919".equals(remoteVersions.get("TConstruct"));
+        return remoteVersions.containsKey("TConstruct") && "1.7.10-1.8.8.build988".equals(remoteVersions.get("TConstruct"));
     }
 
     @EventHandler
@@ -123,7 +125,7 @@ public class TConstruct {
         pulsar.registerPulse(new TinkerMechworks());
         pulsar.registerPulse(new TinkerArmor());
         pulsar.registerPulse(new TinkerWeaponry());
-        pulsar.registerPulse(new TinkerModification());
+        pulsar.registerPulse(new TinkerModification()); // ----------------------------------------
         pulsar.registerPulse(new TinkerThaumcraft());
         pulsar.registerPulse(new TinkerWaila());
         pulsar.registerPulse(new TinkerBuildCraft());
@@ -136,6 +138,7 @@ public class TConstruct {
         pulsar.registerPulse(new TinkerFMP());
         pulsar.registerPulse(new TinkerUBC());
         pulsar.registerPulse(new TinkerGears());
+        pulsar.registerPulse(new TinkerRfTools());
         TConstructRegistry.materialTab = new TConstructCreativeTab("TConstructMaterials");
         TConstructRegistry.toolTab = new TConstructCreativeTab("TConstructTools");
         TConstructRegistry.partTab = new TConstructCreativeTab("TConstructParts");
@@ -161,9 +164,11 @@ public class TConstruct {
             }
 
             VillagerRegistry.instance().registerVillageCreationHandler(new VillageToolStationHandler());
-            VillagerRegistry.instance().registerVillageCreationHandler(new VillageSmelteryHandler());
             MapGenStructureIO.registerStructureComponent(ComponentToolWorkshop.class, "TConstruct:ToolWorkshopStructure");
-            MapGenStructureIO.registerStructureComponent(ComponentSmeltery.class, "TConstruct:SmelteryStructure");
+            if (pulsar.isPulseLoaded("Tinkers\' Smeltery")) {
+                VillagerRegistry.instance().registerVillageCreationHandler(new VillageSmelteryHandler());
+                MapGenStructureIO.registerStructureComponent(ComponentSmeltery.class, "TConstruct:SmelteryStructure");
+            }
         }
 
         TConstructAPI.PROP_NAME = "TConstruct";
@@ -215,5 +220,18 @@ public class TConstruct {
 
     public static Detailing getChiselDetailing() {
         return chiselDetailing;
+    }
+
+    @EventHandler
+    public void missingMapping(FMLMissingMappingsEvent event) {
+        Iterator var2 = event.get().iterator();
+
+        while (var2.hasNext()) {
+            MissingMapping mapping = (MissingMapping) var2.next();
+            if (mapping.name.equals("TConstruct:TankAir")) {
+                mapping.ignore();
+            }
+        }
+
     }
 }
