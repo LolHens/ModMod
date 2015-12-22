@@ -10,7 +10,9 @@ import baubles.api.IBauble;
 import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
 import com.mojang.authlib.GameProfile;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
+import flaxbeard.thaumicexploration.interop.AppleCoreInterop;
 import flaxbeard.thaumicexploration.misc.FakePlayerPotion;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,24 +21,25 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.FoodStats;
 import net.minecraft.world.World;
 import thaumcraft.common.config.ConfigItems;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class ItemFoodTalisman extends Item implements IBauble {
     public static List<String> foodBlacklist = new ArrayList();
+    public static List<String> infiniteFood = new ArrayList();
     public static Map<String, Boolean> foodCache = new HashMap();
-
-    public static List<String> infiniteFood = Arrays.asList(
-            "item.infiniteFruit"
-    );
 
     public ItemFoodTalisman(int par1) {
         super.maxStackSize = 1;
         foodBlacklist.add(ConfigItems.itemManaBean.getUnlocalizedName());
         foodBlacklist.add(ConfigItems.itemZombieBrain.getUnlocalizedName());
+        foodBlacklist.add("item.foodstuff.0.name");
+        infiniteFood.add("item.infinitefruit");
     }
 
     public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4) {
@@ -55,155 +58,186 @@ public class ItemFoodTalisman extends Item implements IBauble {
         par3List.add("Currently holds " + (int) par1ItemStack.stackTagCompound.getFloat("food") + " food points and " + (int) par1ItemStack.stackTagCompound.getFloat("saturation") + " saturation points.");
     }
 
-    public void onUpdate(ItemStack par1ItemStack, World par2World, Entity par3Entity, int par4, boolean par5) {
-        if (par3Entity instanceof EntityPlayer && !par2World.isRemote && par3Entity.ticksExisted % 20 == 0) {
-            final EntityPlayer player = (EntityPlayer) par3Entity;
+    public void onUpdate(ItemStack itemStack, World world, Entity entity, int par4, boolean par5) {
+        if (entity instanceof EntityPlayer && !world.isRemote && entity.ticksExisted % 20 == 0) {
+            EntityPlayer player = (EntityPlayer) entity;
 
-            if (!par1ItemStack.hasTagCompound()) {
-                par1ItemStack.setTagCompound(new NBTTagCompound());
+            if (!itemStack.hasTagCompound()) {
+                itemStack.setTagCompound(new NBTTagCompound());
             }
 
-            if (!par1ItemStack.stackTagCompound.hasKey("saturation")) {
-                par1ItemStack.stackTagCompound.setFloat("saturation", 0.0F);
+            if (!itemStack.stackTagCompound.hasKey("saturation")) {
+                itemStack.stackTagCompound.setFloat("saturation", 0.0F);
             }
 
-            if (!par1ItemStack.stackTagCompound.hasKey("food")) {
-                par1ItemStack.stackTagCompound.setFloat("food", 0.0F);
+            if (!itemStack.stackTagCompound.hasKey("food")) {
+                itemStack.stackTagCompound.setFloat("food", 0.0F);
             }
+
+            boolean infEaten = false;
 
             final InventoryBaubles inventoryBaubles = PlayerHandler.getPlayerBaubles(player);
 
-            for (int sat = 0; sat < inventoryBaubles.getSizeInventory(); ++sat) {
-                final int finalSat = sat;
-                eat(par1ItemStack, player, inventoryBaubles.getStackInSlot(sat), new InventoryModifier() {
-                    @Override
-                    public void removeStack() {
-                        inventoryBaubles.setInventorySlotContents(finalSat, null);
-                    }
+            for (int i = 0; i < inventoryBaubles.getSizeInventory(); ++i) {
+                ItemStack stack = inventoryBaubles.getStackInSlot(i);
+                if (stack == null) continue;
 
-                    @Override
-                    public void decrStackSize() {
-                        inventoryBaubles.decrStackSize(finalSat, 1);
-                    }
-                });
+                if (infiniteFood.contains(stack.getUnlocalizedName().toLowerCase()))
+                    if (eat(itemStack, player, 99.9F - itemStack.stackTagCompound.getFloat("food"), 100F))
+                        infEaten = true;
             }
 
-            for (int sat = 0; sat < 10; ++sat) {
-                final int finalSat = sat;
-                eat(par1ItemStack, player, player.inventory.getStackInSlot(sat), new InventoryModifier() {
-                    @Override
-                    public void removeStack() {
-                        player.inventory.setInventorySlotContents(finalSat, null);
-                    }
+            for (int i = 0; i < 10; ++i) {
+                ItemStack stack = player.inventory.getStackInSlot(i);
+                if (stack == null) continue;
 
-                    @Override
-                    public void decrStackSize() {
-                        player.inventory.decrStackSize(finalSat, 1);
+                if (infiniteFood.contains(stack.getUnlocalizedName().toLowerCase()))
+                    if (eat(itemStack, player, 99.9F - itemStack.stackTagCompound.getFloat("food"), 100F))
+                        infEaten = true;
+            }
+
+            if (!infEaten) {
+                for (int i = 0; i < 10; ++i) {
+                    ItemStack stack = player.inventory.getStackInSlot(i);
+                    if (stack == null) continue;
+
+                    if (this.isEdible(stack, player)) {
+                        float sat;
+                        float heal;
+                        boolean inf = false;
+
+                        if (Loader.isModLoaded("AppleCore")) {
+                            sat = AppleCoreInterop.getSaturation(stack) * 2.0F;
+                            heal = (float) AppleCoreInterop.getHeal(stack);
+                        } else {
+                            sat = ((ItemFood) stack.getItem()).getSaturationModifier(stack) * 2.0F;
+                            heal = (float) ((ItemFood) stack.getItem()).getHealAmount(stack);
+                        }
+
+                        if (eat(itemStack, player, heal, sat)) {
+                            if (stack.stackSize <= 1) {
+                                player.inventory.setInventorySlotContents(i, (ItemStack) null);
+                            }
+                            player.inventory.decrStackSize(i, 1);
+                        }
                     }
-                });
+                }
             }
 
             float var11;
             float var12;
-            if (player.getFoodStats().getFoodLevel() < 20 && 100.0F - par1ItemStack.stackTagCompound.getFloat("food") > 0.0F) {
-                var11 = par1ItemStack.stackTagCompound.getFloat("food");
+            if (player.getFoodStats().getFoodLevel() < 20 && 100.0F - itemStack.stackTagCompound.getFloat("food") > 0.0F) {
+                var11 = itemStack.stackTagCompound.getFloat("food");
                 var12 = 0.0F;
                 if ((float) (20 - player.getFoodStats().getFoodLevel()) < var11) {
                     var12 = var11 - (float) (20 - player.getFoodStats().getFoodLevel());
                     var11 = (float) (20 - player.getFoodStats().getFoodLevel());
                 }
 
-                ObfuscationReflectionHelper.setPrivateValue(FoodStats.class, player.getFoodStats(), Integer.valueOf((int) ((float) player.getFoodStats().getFoodLevel() + var11)), "field_75127_a", "foodLevel");
-                par1ItemStack.stackTagCompound.setFloat("food", var12);
-                par1ItemStack.setMetadata(par1ItemStack.getMetadata());
+                if (Loader.isModLoaded("AppleCore")) {
+                    AppleCoreInterop.setHunger((int) var11, player);
+                } else {
+                    ObfuscationReflectionHelper.setPrivateValue(FoodStats.class, player.getFoodStats(), Integer.valueOf((int) ((float) player.getFoodStats().getFoodLevel() + var11)), new String[]{"field_75127_a", "foodLevel"});
+                }
+
+                itemStack.stackTagCompound.setFloat("food", var12);
+                itemStack.setMetadata(itemStack.getMetadata());
             }
 
-            if (player.getFoodStats().getSaturationLevel() < (float) player.getFoodStats().getFoodLevel() && par1ItemStack.stackTagCompound.getFloat("saturation") > 0.0F) {
-                var11 = par1ItemStack.stackTagCompound.getFloat("saturation");
+            if (player.getFoodStats().getSaturationLevel() < (float) player.getFoodStats().getFoodLevel() && itemStack.stackTagCompound.getFloat("saturation") > 0.0F) {
+                var11 = itemStack.stackTagCompound.getFloat("saturation");
                 var12 = 0.0F;
                 if ((float) player.getFoodStats().getFoodLevel() - player.getFoodStats().getSaturationLevel() < var11) {
                     var12 = var11 - ((float) player.getFoodStats().getFoodLevel() - player.getFoodStats().getSaturationLevel());
                     var11 = (float) player.getFoodStats().getFoodLevel() - player.getFoodStats().getSaturationLevel();
                 }
 
-                ObfuscationReflectionHelper.setPrivateValue(FoodStats.class, player.getFoodStats(), Float.valueOf((float) player.getFoodStats().getFoodLevel() + var11), "field_75125_b", "foodSaturationLevel");
-                par1ItemStack.stackTagCompound.setFloat("saturation", var12);
-                par1ItemStack.setMetadata(par1ItemStack.getMetadata());
-            }
-        }
-
-    }
-
-    private void eat(ItemStack par1ItemStack, EntityPlayer player, ItemStack finalSat, InventoryModifier invMod) {
-        if (finalSat != null) {
-            if (this.isEdible(finalSat, player)) {
-                float sat1 = ((ItemFood) finalSat.getItem()).getSaturationModifier(finalSat) * 2.0F;
-                float heal = (float) ((ItemFood) finalSat.getItem()).getHealAmount(finalSat);
-                if (par1ItemStack.stackTagCompound.getFloat("food") + (float) ((int) heal) < 100.0F) {
-                    if (par1ItemStack.stackTagCompound.getFloat("saturation") + sat1 <= 100.0F) {
-                        par1ItemStack.stackTagCompound.setFloat("saturation", par1ItemStack.stackTagCompound.getFloat("saturation") + sat1);
-                    } else {
-                        par1ItemStack.stackTagCompound.setFloat("saturation", 100.0F);
-                    }
-
-                    if (finalSat.stackSize <= 1) {
-                        invMod.removeStack();
-                    } else {
-                        invMod.decrStackSize();
-                    }
-
-                    player.playSound("random.eat", 0.5F + 0.5F * (float) player.worldObj.rand.nextInt(2), (player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
-                    par1ItemStack.stackTagCompound.setFloat("food", par1ItemStack.stackTagCompound.getFloat("food") + (float) ((int) heal));
+                if (Loader.isModLoaded("AppleCore")) {
+                    AppleCoreInterop.setSaturation(var11, player);
+                } else {
+                    ObfuscationReflectionHelper.setPrivateValue(FoodStats.class, player.getFoodStats(), Float.valueOf((float) player.getFoodStats().getFoodLevel() + var11), new String[]{"field_75125_b", "foodSaturationLevel"});
                 }
-            } else if (infiniteFood.contains(finalSat.getItem().getUnlocalizedName())) {
-                par1ItemStack.stackTagCompound.setFloat("food", 100.0F);
-                par1ItemStack.stackTagCompound.setFloat("saturation", 100.0F);
+
+                itemStack.stackTagCompound.setFloat("saturation", var12);
+                itemStack.setMetadata(itemStack.getMetadata());
             }
         }
+
     }
 
-    private interface InventoryModifier {
-        void removeStack();
+    private boolean eat(ItemStack itemStack, EntityPlayer player, float heal, float sat) {
+        if (itemStack.stackTagCompound.getFloat("food") + (float) ((int) heal) < 100.0F) {
+            if (itemStack.stackTagCompound.getFloat("saturation") + sat <= 100.0F) {
+                itemStack.stackTagCompound.setFloat("saturation", itemStack.stackTagCompound.getFloat("saturation") + sat);
+            } else {
+                itemStack.stackTagCompound.setFloat("saturation", 100.0F);
+            }
 
-        void decrStackSize();
+            player.playSound("random.eat", 0.5F + 0.5F * (float) player.worldObj.rand.nextInt(2), (player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+            itemStack.stackTagCompound.setFloat("food", itemStack.stackTagCompound.getFloat("food") + (float) ((int) heal));
+
+            return true;
+        }
+        return false;
     }
 
     private boolean isEdible(ItemStack food, EntityPlayer player) {
-        String foodName = food.getUnlocalizedName();
-        if (foodCache.containsKey(foodName.toLowerCase())) {
-            return foodCache.get(foodName.toLowerCase()).booleanValue();
+        String foodName = food.getUnlocalizedName().toLowerCase();
+        if (foodCache.containsKey(foodName)) {
+            return ((Boolean) foodCache.get(foodName)).booleanValue();
         } else {
-            Iterator i = foodBlacklist.iterator();
+            Iterator iterator = foodBlacklist.iterator();
 
-            String fakePlayer;
+            String elem;
             do {
-                if (!i.hasNext()) {
+                if (!iterator.hasNext()) {
                     if (food.getItem() instanceof ItemFood) {
-                        for (int var6 = 1; var6 < 25; ++var6) {
-                            FakePlayerPotion var7 = new FakePlayerPotion(player.worldObj, new GameProfile(null, "foodTabletPlayer"));
-                            var7.setPosition(0.0D, 999.0D, 0.0D);
-                            food.getItem().onItemUseFinish(food.copy(), player.worldObj, var7);
-                            if (var7.getActivePotionEffects().size() > 0) {
-                                foodCache.put(foodName.toLowerCase(), Boolean.valueOf(false));
-                                return false;
-                            }
-                        }
+                        try {
+                            for (int i = 1; i < 25; ++i) {
+                                FakePlayerPotion fakePlayer = new FakePlayerPotion(player.worldObj, new GameProfile((UUID) null, "foodTabletPlayer"));
+                                fakePlayer.setPosition(0.0D, 999.0D, 0.0D);
+                                ((ItemFood) food.getItem()).onItemUseFinish(food.copy(), player.worldObj, fakePlayer);
+                                if (Loader.isModLoaded("HungerOverhaul")) {
+                                    if (fakePlayer.getActivePotionEffects().size() > 1) {
+                                        foodCache.put(foodName, Boolean.valueOf(false));
+                                        return false;
+                                    }
 
-                        foodCache.put(foodName.toLowerCase(), Boolean.valueOf(true));
-                        return true;
+                                    if (fakePlayer.getActivePotionEffects().size() == 1) {
+                                        Class clazz = Class.forName("iguanaman.hungeroverhaul.HungerOverhaul");
+                                        Field fields = clazz.getField("potionWellFed");
+                                        Potion effect = (Potion) fields.get((Object) null);
+                                        if (effect != null && fakePlayer.getActivePotionEffect(effect) == null) {
+                                            foodCache.put(foodName, Boolean.valueOf(false));
+                                            return false;
+                                        }
+                                    }
+                                } else if (fakePlayer.getActivePotionEffects().size() > 0) {
+                                    foodCache.put(foodName, Boolean.valueOf(false));
+                                    return false;
+                                }
+                            }
+
+                            foodCache.put(foodName, Boolean.valueOf(true));
+                            return true;
+                        } catch (Exception e) {
+                            foodCache.put(foodName, Boolean.valueOf(false));
+                            return false;
+                        }
                     }
 
-                    foodCache.put(foodName.toLowerCase(), Boolean.valueOf(false));
+                    foodCache.put(foodName, Boolean.valueOf(false));
                     return false;
                 }
 
-                fakePlayer = (String) i.next();
-            } while (!fakePlayer.equalsIgnoreCase(foodName));
+                elem = (String) iterator.next();
+            } while (!elem.equalsIgnoreCase(foodName));
 
-            foodCache.put(foodName.toLowerCase(), Boolean.valueOf(false));
+            foodCache.put(foodName, Boolean.valueOf(false));
             return false;
         }
     }
+
 
     @Override
     public BaubleType getBaubleType(ItemStack itemStack) {
