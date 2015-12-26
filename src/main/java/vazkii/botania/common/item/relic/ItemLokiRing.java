@@ -85,7 +85,7 @@ public class ItemLokiRing extends ItemRelicBauble implements IExtendedWireframeC
                 if (var19.posY == -1 && lookPos != null) {
                     setOriginPos(lokiRing, lookPos.blockX, lookPos.blockY, lookPos.blockZ);
                     setCursorList(lokiRing, (List) null);
-                    inv.setInventorySlotContents(slot, lokiRing); // TODO: Necessary???
+                    inv.setInventorySlotContents(slot, lokiRing);
                     if (player instanceof EntityPlayerMP) {
                         PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(player, slot), (EntityPlayerMP) player);
                     }
@@ -181,35 +181,31 @@ public class ItemLokiRing extends ItemRelicBauble implements IExtendedWireframeC
     @SideOnly(Side.CLIENT)
     public List<ChunkCoordinates> getWireframesToDraw(EntityPlayer player, ItemStack stack1) {
         ItemStack stack = getLokiRing(player);
-        if (stack == null || !PlayerHandler.getPlayerBaubles(player).isRelatedTo(stack1, stack)) {
-            System.out.println("unrelated");
-            return null;
-        } else {
-            System.out.println("related");
-            MovingObjectPosition lookPos = Minecraft.getMinecraft().objectMouseOver;
-            if (lookPos != null && !player.worldObj.isAirBlock(lookPos.blockX, lookPos.blockY, lookPos.blockZ) && lookPos.entityHit == null) {
-                List list = getCursorList(stack);
-                ChunkCoordinates origin = getOriginPos(stack);
-                Iterator var6;
-                ChunkCoordinates coords;
-                if (origin.posY != -1) {
-                    for (var6 = list.iterator(); var6.hasNext(); coords.posZ += origin.posZ) {
-                        coords = (ChunkCoordinates) var6.next();
-                        coords.posX += origin.posX;
-                        coords.posY += origin.posY;
-                    }
-                } else {
-                    for (var6 = list.iterator(); var6.hasNext(); coords.posZ += lookPos.blockZ) {
-                        coords = (ChunkCoordinates) var6.next();
-                        coords.posX += lookPos.blockX;
-                        coords.posY += lookPos.blockY;
-                    }
-                }
+        if (stack == null || !PlayerHandler.getPlayerBaubles(player).isRelatedTo(stack1, stack)) return null;
 
-                return list;
+        MovingObjectPosition lookPos = Minecraft.getMinecraft().objectMouseOver;
+        if (lookPos != null && !player.worldObj.isAirBlock(lookPos.blockX, lookPos.blockY, lookPos.blockZ) && lookPos.entityHit == null) {
+            List list = getCursorList(stack);
+            ChunkCoordinates origin = getOriginPos(stack);
+            Iterator var6;
+            ChunkCoordinates coords;
+            if (origin.posY != -1) {
+                for (var6 = list.iterator(); var6.hasNext(); coords.posZ += origin.posZ) {
+                    coords = (ChunkCoordinates) var6.next();
+                    coords.posX += origin.posX;
+                    coords.posY += origin.posY;
+                }
             } else {
-                return null;
+                for (var6 = list.iterator(); var6.hasNext(); coords.posZ += lookPos.blockZ) {
+                    coords = (ChunkCoordinates) var6.next();
+                    coords.posX += lookPos.blockX;
+                    coords.posY += lookPos.blockY;
+                }
             }
+
+            return list;
+        } else {
+            return null;
         }
     }
 
