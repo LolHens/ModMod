@@ -5,13 +5,9 @@
 
 package tconstruct.tools;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.ItemCraftedEvent;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityCreeper;
@@ -36,14 +32,16 @@ import tconstruct.TConstruct;
 import tconstruct.armor.player.TPlayerStats;
 import tconstruct.library.TConstructRegistry;
 import tconstruct.library.entity.ProjectileBase;
-import tconstruct.library.event.ToolBuildEvent;
 import tconstruct.library.event.PartBuilderEvent.NormalPart;
+import tconstruct.library.event.ToolBuildEvent;
 import tconstruct.library.event.ToolCraftEvent.NormalTool;
 import tconstruct.library.tools.*;
-import tconstruct.tools.TinkerTools;
 import tconstruct.util.ItemHelper;
 import tconstruct.util.config.PHConstruct;
 import tconstruct.util.network.MovementUpdatePacket;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class TinkerToolEvents {
     public TinkerToolEvents() {

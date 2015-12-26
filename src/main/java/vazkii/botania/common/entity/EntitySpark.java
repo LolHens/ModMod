@@ -8,10 +8,8 @@ package vazkii.botania.common.entity;
 import baubles.common.lib.PlayerHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
@@ -21,7 +19,6 @@ import vazkii.botania.api.mana.spark.ISparkAttachable;
 import vazkii.botania.api.mana.spark.ISparkEntity;
 import vazkii.botania.api.mana.spark.SparkHelper;
 import vazkii.botania.common.Botania;
-import vazkii.botania.common.core.helper.ItemNBTHelper;
 import vazkii.botania.common.core.helper.Vector3;
 import vazkii.botania.common.item.ModItems;
 
@@ -32,8 +29,7 @@ import java.util.List;
 public class EntitySpark extends Entity implements ISparkEntity {
     private static final int TRANSFER_RATE = 1000;
     private static final String TAG_UPGRADE = "upgrade";
-    private static final String TAG_TRANSFERS = "tfs";
-    private static final String TAG_TRANSFER_ID = "id";
+    Set<ISparkEntity> transfers = Collections.newSetFromMap(new WeakHashMap());
     int removeTransferants = 2;
     boolean firstTick = false;
 
@@ -43,11 +39,9 @@ public class EntitySpark extends Entity implements ISparkEntity {
     }
 
     protected void entityInit() {
-        this.setSize(0.5F, 0.5F);
+        this.setSize(0.1F, 0.5F);
         super.dataWatcher.addObject(28, Integer.valueOf(0));
-        super.dataWatcher.addObject(29, new ItemStack(Blocks.stone, 0, 0));
         super.dataWatcher.setObjectWatched(28);
-        super.dataWatcher.setObjectWatched(29);
     }
 
     public void onUpdate() {
@@ -217,7 +211,7 @@ public class EntitySpark extends Entity implements ISparkEntity {
             Vector3 orig = new Vector3(e1.posX, e1.posY + 0.25D, e1.posZ);
             Vector3 end = new Vector3(e2.posX, e2.posY + 0.25D, e2.posZ);
             Vector3 diff = end.copy().sub(orig);
-            Vector3 movement = diff.copy().normalize().multiply(0.05D);
+            Vector3 movement = diff.copy().normalize().multiply(0.1D);
             int iters = (int) (diff.mag() / movement.mag());
             float huePer = 1.0F / (float) iters;
             float hueSum = (float) Math.random();
@@ -230,7 +224,7 @@ public class EntitySpark extends Entity implements ISparkEntity {
                 float g = Math.min(1.0F, (float) color.getGreen() / 255.0F + 0.4F);
                 float b = Math.min(1.0F, (float) color.getBlue() / 255.0F + 0.4F);
                 Botania.proxy.setSparkleFXNoClip(true);
-                Botania.proxy.sparkleFX(e1.worldObj, currentPos.x, currentPos.y, currentPos.z, r, g, b, 0.6F, 12);
+                Botania.proxy.sparkleFX(e1.worldObj, currentPos.x, currentPos.y, currentPos.z, r, g, b, 1.0F, 12);
                 Botania.proxy.setSparkleFXNoClip(false);
                 currentPos.add(movement);
             }
@@ -254,7 +248,7 @@ public class EntitySpark extends Entity implements ISparkEntity {
                         }
 
                         this.setUpgrade(0);
-                        this.setTransferDataContainer(new ItemStack(Blocks.stone, 0, 0));
+                        this.transfers.clear();
                         this.removeTransferants = 2;
                     } else {
                         this.setDead();
@@ -322,67 +316,41 @@ public class EntitySpark extends Entity implements ISparkEntity {
     }
 
     public Collection<ISparkEntity> getTransfers() {
-        ArrayList entities = new ArrayList();
-        ItemStack transferDataContainer = this.getTransferDataContainer();
-        NBTTagList list = ItemNBTHelper.getList(transferDataContainer, "tfs", 10, false);
-        NBTTagList newTransfers = new NBTTagList();
+        ArrayList removals = new ArrayList();
+        Iterator var2 = this.transfers.iterator();
 
-        for (int stack = 0; stack < list.tagCount(); ++stack) {
-            NBTTagCompound cmp = list.getCompoundTagAt(stack);
-            int id = cmp.getInteger("id");
-            boolean added = false;
-            Entity e = super.worldObj.getEntityByID(id);
-            if (e != null && e instanceof ISparkEntity) {
-                ISparkEntity cmp_ = (ISparkEntity) e;
-                int upgr = this.getUpgrade();
-                int supgr = cmp_.getUpgrade();
-                ISparkAttachable atile = cmp_.getAttachedTile();
-                if (cmp_ != this && !cmp_.areIncomingTransfersDone() && atile != null && !atile.isFull() && (upgr == 0 && supgr == 2 || upgr == 3 && (supgr == 0 || supgr == 1) || !(atile instanceof IManaPool))) {
-                    entities.add((ISparkEntity) e);
-                    added = true;
+        while (true) {
+            ISparkEntity e;
+            int upgr;
+            int supgr;
+            ISparkAttachable atile;
+            do {
+                if (!var2.hasNext()) {
+                    if (!removals.isEmpty()) {
+                        this.transfers.removeAll(removals);
+                    }
+
+                    return this.transfers;
                 }
-            }
 
-            if (added) {
-                NBTTagCompound var15 = new NBTTagCompound();
-                var15.setInteger("id", id);
-                newTransfers.appendTag(var15);
+                e = (ISparkEntity) var2.next();
+                upgr = this.getUpgrade();
+                supgr = e.getUpgrade();
+                atile = e.getAttachedTile();
             }
+            while (e != this && !e.areIncomingTransfersDone() && atile != null && !atile.isFull() && (upgr == 0 && supgr == 2 || upgr == 3 && (supgr == 0 || supgr == 1) || !(atile instanceof IManaPool)));
+
+            removals.add(e);
         }
-
-        ItemStack var14 = transferDataContainer.copy();
-        ItemNBTHelper.setList(var14, "tfs", list);
-        this.setTransferDataContainer(var14);
-        return entities;
     }
 
     private boolean hasTransfer(ISparkEntity entity) {
-        ItemStack transferDataContainer = this.getTransferDataContainer();
-        NBTTagList list = ItemNBTHelper.getList(transferDataContainer, "tfs", 10, false);
-        new NBTTagList();
-        int id = ((Entity) entity).getEntityId();
-
-        for (int i = 0; i < list.tagCount(); ++i) {
-            NBTTagCompound cmp = list.getCompoundTagAt(i);
-            int tid = cmp.getInteger("id");
-            if (id == tid) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.transfers.contains(entity);
     }
 
     public void registerTransfer(ISparkEntity entity) {
-        if (!super.worldObj.isRemote && !this.hasTransfer(entity)) {
-            ItemStack transferDataContainer = this.getTransferDataContainer();
-            NBTTagList list = ItemNBTHelper.getList(transferDataContainer, "tfs", 10, false);
-            NBTTagCompound cmp_ = new NBTTagCompound();
-            cmp_.setInteger("id", ((Entity) entity).getEntityId());
-            list.appendTag(cmp_);
-            ItemStack stack = transferDataContainer.copy();
-            ItemNBTHelper.setList(stack, "tfs", list);
-            this.setTransferDataContainer(stack);
+        if (!this.hasTransfer(entity)) {
+            this.transfers.add(entity);
         }
     }
 
@@ -392,14 +360,6 @@ public class EntitySpark extends Entity implements ISparkEntity {
 
     public void setUpgrade(int upgrade) {
         super.dataWatcher.updateObject(28, Integer.valueOf(upgrade));
-    }
-
-    public ItemStack getTransferDataContainer() {
-        return super.dataWatcher.getWatchableObjectItemStack(29);
-    }
-
-    public void setTransferDataContainer(ItemStack stack) {
-        super.dataWatcher.updateObject(29, stack);
     }
 
     public boolean areIncomingTransfersDone() {

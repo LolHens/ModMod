@@ -6,7 +6,10 @@
 package vazkii.botania.common.item.relic;
 
 import baubles.api.BaubleType;
+import baubles.common.container.InventoryBaubles;
 import baubles.common.lib.PlayerHandler;
+import baubles.common.network.PacketHandler;
+import baubles.common.network.PacketSyncBauble;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -17,6 +20,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -25,9 +29,10 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import vazkii.botania.api.item.IExtendedWireframeCoordinateListProvider;
 import vazkii.botania.api.item.ISequentialBreaker;
-import vazkii.botania.api.item.IWireframeCoordinateListProvider;
+import vazkii.botania.api.mana.IManaUsingItem;
+import vazkii.botania.api.mana.ManaItemHandler;
 import vazkii.botania.common.core.helper.ItemNBTHelper;
 import vazkii.botania.common.item.ModItems;
 import vazkii.botania.common.item.equipment.tool.ToolCommons;
@@ -36,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ItemLokiRing extends ItemRelicBauble implements IWireframeCoordinateListProvider {
+public class ItemLokiRing extends ItemRelicBauble implements IExtendedWireframeCoordinateListProvider, IManaUsingItem {
     private static final String TAG_CURSOR_LIST = "cursorList";
     private static final String TAG_CURSOR_PREFIX = "cursor";
     private static final String TAG_CURSOR_COUNT = "cursorCount";
@@ -55,44 +60,72 @@ public class ItemLokiRing extends ItemRelicBauble implements IWireframeCoordinat
     @SubscribeEvent
     public void onPlayerInteract(PlayerInteractEvent event) {
         EntityPlayer player = event.entityPlayer;
+
         ItemStack lokiRing = getLokiRing(player);
         if (lokiRing != null && !player.worldObj.isRemote) {
+            int slot = -1;
+            InventoryBaubles inv = PlayerHandler.getPlayerBaubles(player);
+
+            for (int heldItemStack = 0; heldItemStack < inv.getSizeInventory(); ++heldItemStack) {
+                ItemStack originCoords = inv.getStackInSlot(heldItemStack);
+                if (ItemStack.areItemStacksEqual(lokiRing, originCoords)) {
+                    slot = heldItemStack;
+                    break;
+                }
+            }
+
             ItemStack heldItemStack = player.getCurrentEquippedItem();
-            ChunkCoordinates originCoords = getOriginPos(lokiRing);
+            ChunkCoordinates var19 = getOriginPos(lokiRing);
             MovingObjectPosition lookPos = ToolCommons.raytraceFromEntity(player.worldObj, player, true, 10.0D);
-            List cursors;
+            List cursors = getCursorList(lokiRing);
+            int cursorCount = cursors.size();
+            int cost = Math.min(cursorCount, (int) Math.pow(2.718281828459045D, (double) cursorCount * 0.25D));
             int x;
-            if (heldItemStack != null && heldItemStack.getItem() == ModItems.terraPick && event.action == Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
-                if (originCoords.posY == -1 && lookPos != null) {
+            if (heldItemStack != null && heldItemStack.getItem() == ModItems.terraPick && event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
+                if (var19.posY == -1 && lookPos != null) {
                     setOriginPos(lokiRing, lookPos.blockX, lookPos.blockY, lookPos.blockZ);
                     setCursorList(lokiRing, (List) null);
+                    inv.setInventorySlotContents(slot, lokiRing); // TODO: Necessary???
+                    if (player instanceof EntityPlayerMP) {
+                        PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(player, slot), (EntityPlayerMP) player);
+                    }
                 } else if (lookPos != null) {
-                    if (originCoords.posX != lookPos.blockX || originCoords.posY != lookPos.blockY || originCoords.posZ != lookPos.blockZ) {
-                        cursors = getCursorList(lokiRing);
-                        int relX1 = lookPos.blockX - originCoords.posX;
-                        int cursor1 = lookPos.blockY - originCoords.posY;
-                        x = lookPos.blockZ - originCoords.posZ;
-                        Iterator y1 = cursors.iterator();
+                    if (var19.posX != lookPos.blockX || var19.posY != lookPos.blockY || var19.posZ != lookPos.blockZ) {
+                        int var20 = lookPos.blockX - var19.posX;
+                        int var21 = lookPos.blockY - var19.posY;
+                        x = lookPos.blockZ - var19.posZ;
+                        Iterator var22 = cursors.iterator();
 
                         while (true) {
-                            if (!y1.hasNext()) {
-                                addCursor(lokiRing, relX1, cursor1, x);
+                            if (!var22.hasNext()) {
+                                addCursor(lokiRing, var20, var21, x);
+                                inv.setInventorySlotContents(slot, lokiRing);
+                                if (player instanceof EntityPlayerMP) {
+                                    PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(player, slot), (EntityPlayerMP) player);
+                                }
                                 break;
                             }
 
-                            ChunkCoordinates z1 = (ChunkCoordinates) y1.next();
-                            if (z1.posX == relX1 && z1.posY == cursor1 && z1.posZ == x) {
-                                cursors.remove(z1);
+                            ChunkCoordinates var23 = (ChunkCoordinates) var22.next();
+                            if (var23.posX == var20 && var23.posY == var21 && var23.posZ == x) {
+                                cursors.remove(var23);
                                 setCursorList(lokiRing, cursors);
+                                inv.setInventorySlotContents(slot, lokiRing);
+                                if (player instanceof EntityPlayerMP) {
+                                    PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(player, slot), (EntityPlayerMP) player);
+                                }
                                 break;
                             }
                         }
                     } else {
                         setOriginPos(lokiRing, 0, -1, 0);
+                        inv.setInventorySlotContents(slot, lokiRing);
+                        if (player instanceof EntityPlayerMP) {
+                            PacketHandler.INSTANCE.sendTo(new PacketSyncBauble(player, slot), (EntityPlayerMP) player);
+                        }
                     }
                 }
-            } else if (heldItemStack != null && event.action == Action.RIGHT_CLICK_BLOCK && lookPos != null) {
-                cursors = getCursorList(lokiRing);
+            } else if (heldItemStack != null && event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK && lookPos != null && player.isSneaking()) {
                 Iterator relX = cursors.iterator();
 
                 while (relX.hasNext()) {
@@ -101,8 +134,12 @@ public class ItemLokiRing extends ItemRelicBauble implements IWireframeCoordinat
                     int y = lookPos.blockY + cursor.posY;
                     int z = lookPos.blockZ + cursor.posZ;
                     Item item = heldItemStack.getItem();
-                    if (!player.worldObj.isAirBlock(x, y, z)) {
+                    if (!player.worldObj.isAirBlock(x, y, z) && ManaItemHandler.requestManaExact(lokiRing, player, cost, true)) {
                         item.onItemUse(player.capabilities.isCreativeMode ? heldItemStack.copy() : heldItemStack, player, player.worldObj, x, y, z, lookPos.sideHit, (float) lookPos.hitVec.xCoord - (float) x, (float) lookPos.hitVec.yCoord - (float) y, (float) lookPos.hitVec.zCoord - (float) z);
+                        if (heldItemStack.stackSize == 0) {
+                            event.setCanceled(true);
+                            return;
+                        }
                     }
                 }
             }
@@ -142,32 +179,47 @@ public class ItemLokiRing extends ItemRelicBauble implements IWireframeCoordinat
     }
 
     @SideOnly(Side.CLIENT)
-    public List<ChunkCoordinates> getWireframesToDraw(EntityPlayer player, ItemStack stack) {
-        MovingObjectPosition lookPos = Minecraft.getMinecraft().objectMouseOver;
-        if (lookPos != null && !player.worldObj.isAirBlock(lookPos.blockX, lookPos.blockY, lookPos.blockZ) && lookPos.entityHit == null) {
-            List list = getCursorList(stack);
-            ChunkCoordinates origin = getOriginPos(stack);
-            Iterator var6;
-            ChunkCoordinates coords;
-            if (origin.posY != -1) {
-                for (var6 = list.iterator(); var6.hasNext(); coords.posZ += origin.posZ) {
-                    coords = (ChunkCoordinates) var6.next();
-                    coords.posX += origin.posX;
-                    coords.posY += origin.posY;
-                }
-
-                list.add(origin);
-            } else {
-                for (var6 = list.iterator(); var6.hasNext(); coords.posZ += lookPos.blockZ) {
-                    coords = (ChunkCoordinates) var6.next();
-                    coords.posX += lookPos.blockX;
-                    coords.posY += lookPos.blockY;
-                }
-            }
-
-            return list;
-        } else {
+    public List<ChunkCoordinates> getWireframesToDraw(EntityPlayer player, ItemStack stack1) {
+        ItemStack stack = getLokiRing(player);
+        if (stack == null || !PlayerHandler.getPlayerBaubles(player).isRelatedTo(stack1, stack)) {
+            System.out.println("unrelated");
             return null;
+        } else {
+            System.out.println("related");
+            MovingObjectPosition lookPos = Minecraft.getMinecraft().objectMouseOver;
+            if (lookPos != null && !player.worldObj.isAirBlock(lookPos.blockX, lookPos.blockY, lookPos.blockZ) && lookPos.entityHit == null) {
+                List list = getCursorList(stack);
+                ChunkCoordinates origin = getOriginPos(stack);
+                Iterator var6;
+                ChunkCoordinates coords;
+                if (origin.posY != -1) {
+                    for (var6 = list.iterator(); var6.hasNext(); coords.posZ += origin.posZ) {
+                        coords = (ChunkCoordinates) var6.next();
+                        coords.posX += origin.posX;
+                        coords.posY += origin.posY;
+                    }
+                } else {
+                    for (var6 = list.iterator(); var6.hasNext(); coords.posZ += lookPos.blockZ) {
+                        coords = (ChunkCoordinates) var6.next();
+                        coords.posX += lookPos.blockX;
+                        coords.posY += lookPos.blockY;
+                    }
+                }
+
+                return list;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public ChunkCoordinates getSourceWireframe(EntityPlayer player, ItemStack stack1) {
+        ItemStack stack = getLokiRing(player);
+
+        if (stack == null || !PlayerHandler.getPlayerBaubles(player).isRelatedTo(stack1, stack)) {
+            return null;
+        } else {
+            return getOriginPos(stack);
         }
     }
 
@@ -243,5 +295,9 @@ public class ItemLokiRing extends ItemRelicBauble implements IWireframeCoordinat
         cmp.setTag("cursor" + count, cursorToCmp(x, y, z));
         cmp.setInteger("cursorCount", count + 1);
         ItemNBTHelper.setCompound(stack, "cursorList", cmp);
+    }
+
+    public boolean usesMana(ItemStack stack) {
+        return true;
     }
 }

@@ -39,7 +39,7 @@ public class InventoryBaublesExtended extends InventoryBaubles {
                 ItemStack[] baubleArray = ((IBaubleContainer) slot.getItem()).getBaubles(slot, entity);
                 for (int i2 = 0; i2 < baubleArray.length; i2++) {
                     ItemStack bauble = baubleArray[i2];
-                    baubles.add(new StackRef(slot, i2, bauble));
+                    baubles.add(new StackRef(slot, i, bauble, i2));
                 }
             }
         }
@@ -47,6 +47,17 @@ public class InventoryBaublesExtended extends InventoryBaubles {
         StackRef[] array = new StackRef[baubles.size()];
         baubles.toArray(array);
         return array;
+    }
+
+    @Override
+    public boolean isRelatedTo(int slot, ItemStack stack) {
+        if (super.isRelatedTo(slot, stack)) return true;
+
+        StackRef[] refs = getContainerBaubles();
+        for (StackRef ref : refs)
+            if (ref.containerSlot == slot && ItemStack.areItemStacksEqual(ref.get(), stack)) return true;
+
+        return false;
     }
 
     @Override
@@ -113,6 +124,8 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
                     ref.set(null);
 
+                    this.syncSlotToClients(ref.containerSlot);
+
                     return itemStack;
                 } else {
                     ItemStack itemStack = ref.get().splitStack(count);
@@ -122,6 +135,8 @@ public class InventoryBaublesExtended extends InventoryBaubles {
                     }
 
                     if (ref.get().stackSize == 0) ref.set(null);
+
+                    this.syncSlotToClients(ref.containerSlot);
 
                     return itemStack;
                 }
@@ -144,6 +159,7 @@ public class InventoryBaublesExtended extends InventoryBaubles {
             StackRef ref = refs[index - baubleInvSize];
             ItemStack stack = ref.get();
             ref.set(null);
+            this.syncSlotToClients(ref.containerSlot);
             return stack;
         }
     }
@@ -156,9 +172,13 @@ public class InventoryBaublesExtended extends InventoryBaubles {
             super.setInventorySlotContents(index, stack);
         } else {
             StackRef[] refs = getContainerBaubles();
-            if (index - baubleInvSize >= refs.length) return;
+            int extraSlot = index - baubleInvSize;
 
-            refs[index - baubleInvSize].set(stack);
+            if (extraSlot >= refs.length) return;
+
+            refs[extraSlot].set(stack);
+
+            this.syncSlotToClients(refs[extraSlot].containerSlot);
         }
     }
 
@@ -185,13 +205,15 @@ public class InventoryBaublesExtended extends InventoryBaubles {
 
     private class StackRef {
         private ItemStack baubleContainer;
-        private int num;
+        private int containerSlot;
         private ItemStack content;
+        private int num;
 
-        public StackRef(ItemStack baubleContainer, int num, ItemStack content) {
+        public StackRef(ItemStack baubleContainer, int containerSlot, ItemStack content, int num) {
             this.baubleContainer = baubleContainer;
-            this.num = num;
+            this.containerSlot = containerSlot;
             this.content = content;
+            this.num = num;
         }
 
         public ItemStack get() {

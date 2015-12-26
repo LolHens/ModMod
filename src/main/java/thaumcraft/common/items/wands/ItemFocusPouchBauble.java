@@ -78,7 +78,10 @@ public class ItemFocusPouchBauble extends ItemFocusPouch implements IBauble, IBa
         ItemStack[] inv = getInventory(container);
         for (int i = 0; i < inv.length; i++) {
             if (inv[i] != null && inv[i].getItem() instanceof IBauble) {
-                if (num == index) inv[i] = newStack;
+                if (num == index) {
+                    inv[i] = newStack;
+                    break;
+                }
                 index++;
             }
         }

@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package vazkii.botania.common.item.equipment.tool;
+package vazkii.botania.common.item.equipment.tool.terrasteel;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -34,9 +34,11 @@ import vazkii.botania.common.achievement.ModAchievements;
 import vazkii.botania.common.core.helper.ItemNBTHelper;
 import vazkii.botania.common.crafting.recipe.TerraPickTippingRecipe;
 import vazkii.botania.common.item.ItemSpark;
+import vazkii.botania.common.item.ItemTemperanceStone;
 import vazkii.botania.common.item.ModItems;
 import vazkii.botania.common.item.equipment.bauble.ItemAuraRing;
 import vazkii.botania.common.item.equipment.bauble.ItemGreaterAuraRing;
+import vazkii.botania.common.item.equipment.tool.ToolCommons;
 import vazkii.botania.common.item.equipment.tool.manasteel.ItemManasteelPick;
 import vazkii.botania.common.item.relic.ItemLokiRing;
 import vazkii.botania.common.item.relic.ItemThorRing;
@@ -49,8 +51,9 @@ public class ItemTerraPick extends ItemManasteelPick implements IManaItem, ISequ
     private static final String TAG_MANA = "mana";
     private static final String TAG_TIPPED = "tipped";
     private static final int MAX_MANA = 2147483647;
+    private static final int MANA_PER_DAMAGE = 100;
     private static final Material[] MATERIALS;
-    private static final int[] LEVELS;
+    public static final int[] LEVELS;
     private static final int[] CREATIVE_MANA;
     IIcon iconTool;
     IIcon iconOverlay;
@@ -86,17 +89,22 @@ public class ItemTerraPick extends ItemManasteelPick implements IManaItem, ISequ
     }
 
     public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer) {
-        if (!par3EntityPlayer.isSneaking()) {
-            this.getMana(par1ItemStack);
-            int level = getLevel(par1ItemStack);
-            if (level != 0) {
-                this.setEnabled(par1ItemStack, !this.isEnabled(par1ItemStack));
-                if (!par2World.isRemote) {
-                    par2World.playSoundAtEntity(par3EntityPlayer, "botania:terraPickMode", 0.5F, 0.4F);
-                }
+        if (par3EntityPlayer.isSneaking()) return par1ItemStack;
+
+        this.getMana(par1ItemStack);
+        int level = getLevel(par1ItemStack);
+        if (level != 0) {
+            this.setEnabled(par1ItemStack, !this.isEnabled(par1ItemStack));
+            if (!par2World.isRemote) {
+                par2World.playSoundAtEntity(par3EntityPlayer, "botania:terraPickMode", 0.5F, 0.4F);
             }
         }
+
         return par1ItemStack;
+    }
+
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int s, float sx, float sy, float sz) {
+        return !player.isSneaking() && super.onItemUse(stack, player, world, x, y, z, s, sx, sy, sz);
     }
 
     public void onUpdate(ItemStack par1ItemStack, World par2World, Entity par3Entity, int par4, boolean par5) {
@@ -122,6 +130,10 @@ public class ItemTerraPick extends ItemManasteelPick implements IManaItem, ISequ
         return false;
     }
 
+    public int getManaPerDmg() {
+        return 100;
+    }
+
     public void breakOtherBlock(EntityPlayer player, ItemStack stack, int x, int y, int z, int originX, int originY, int originZ, int side) {
         if (this.isEnabled(stack)) {
             World world = player.worldObj;
@@ -135,12 +147,17 @@ public class ItemTerraPick extends ItemManasteelPick implements IManaItem, ISequ
                     boolean doX = thor || direction.offsetX == 0;
                     boolean doY = thor || direction.offsetY == 0;
                     boolean doZ = thor || direction.offsetZ == 0;
-                    int level = getLevel(stack);
+                    int origLevel = getLevel(stack);
+                    int level = origLevel + (thor ? 1 : 0);
+                    if (ItemTemperanceStone.hasTemperanceActive(player) && level > 2) {
+                        level = 2;
+                    }
+
                     int range = Math.max(0, level - 1);
                     int rangeY = Math.max(1, range);
                     if (range != 0 || level == 1) {
                         ToolCommons.removeBlocksInIteration(player, stack, world, x, y, z, doX ? -range : 0, doY ? -1 : 0, doZ ? -range : 0, doX ? range + 1 : 1, doY ? rangeY * 2 : 1, doZ ? range + 1 : 1, (Block) null, MATERIALS, silk, fortune, isTipped(stack));
-                        if (level == 5) {
+                        if (origLevel == 5) {
                             player.addStat(ModAchievements.rankSSPick, 1);
                         }
 

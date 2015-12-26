@@ -62,6 +62,19 @@ public class InventoryBaubles implements IInventory {
         return "";
     }
 
+    public boolean isRelatedTo(int slot, ItemStack stack) {
+        return ItemStack.areItemStacksEqual(getStackInSlot(slot), stack);
+    }
+
+    public boolean isRelatedTo(ItemStack rootBauble, ItemStack stack) {
+        if (ItemStack.areItemStacksEqual(rootBauble, stack)) return true;
+
+        for (int i = 0; i < stackList.length; i++)
+            if (ItemStack.areItemStacksEqual(rootBauble, getStackInSlot(i))) return isRelatedTo(i, stack);
+
+        return false;
+    }
+
     @Override
     public boolean isCustomInventoryName() {
         return hasCustomInventoryName();
