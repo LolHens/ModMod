@@ -19,15 +19,21 @@ public class InventoryBaublesExtended extends InventoryBaubles {
     private StackRef[] cachedContainerBaubles;
 
     protected void cacheContainerBaubles() {
-        cachedContainerBaubles = getContainerBaubles();
+        synchronized (cachedContainerBaubles) {
+            cachedContainerBaubles = getContainerBaubles();
+        }
     }
 
     protected void releaseCachedContainerBaubles() {
-        cachedContainerBaubles = null;
+        synchronized (cachedContainerBaubles) {
+            cachedContainerBaubles = null;
+        }
     }
 
-    public synchronized StackRef[] getContainerBaubles() {
-        if (cachedContainerBaubles != null) return cachedContainerBaubles;
+    public StackRef[] getContainerBaubles() {
+        synchronized (cachedContainerBaubles) {
+            if (cachedContainerBaubles != null) return cachedContainerBaubles;
+        }
 
         EntityPlayer entity = player.get();
 
