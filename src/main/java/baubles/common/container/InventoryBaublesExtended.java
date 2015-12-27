@@ -7,6 +7,8 @@ import net.minecraft.item.ItemStack;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by LolHens on 04.05.2015.
@@ -17,23 +19,37 @@ public class InventoryBaublesExtended extends InventoryBaubles {
     }
 
     private StackRef[] cachedContainerBaubles;
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
 
     protected void cacheContainerBaubles() {
-        synchronized (cachedContainerBaubles) {
+        lock.writeLock().lock();
+        try {
             cachedContainerBaubles = getContainerBaubles();
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
     protected void releaseCachedContainerBaubles() {
-        synchronized (cachedContainerBaubles) {
+        lock.writeLock().lock();
+        try {
             cachedContainerBaubles = null;
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
     public StackRef[] getContainerBaubles() {
-        synchronized (cachedContainerBaubles) {
-            if (cachedContainerBaubles != null) return cachedContainerBaubles;
+        StackRef[] cache = null;
+
+        lock.readLock().lock();
+        try {
+            cache = cachedContainerBaubles;
+        } finally {
+            lock.readLock().unlock();
         }
+
+        if (cache != null) return cache;
 
         EntityPlayer entity = player.get();
 
