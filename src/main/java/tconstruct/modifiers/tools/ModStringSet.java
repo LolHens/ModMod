@@ -58,9 +58,9 @@ public class ModStringSet extends ItemModifier {
     public static Set<String> getValues(ItemStack stack, Class<? extends ModStringSet> modifier) {
         NBTBase nbtBase = TinkerModification.getModifierTag(stack, modifier);
 
-        if (nbtBase == null || !(nbtBase instanceof NBTTagList)) return null;
-
         Set<String> values = new HashSet<String>();
+
+        if (nbtBase == null || !(nbtBase instanceof NBTTagList)) return values;
 
         for (int i = 0; i < ((NBTTagList) nbtBase).tagCount(); i++)
             values.add(((NBTTagList) nbtBase).getStringTagAt(i));
