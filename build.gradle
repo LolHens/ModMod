@@ -46,7 +46,7 @@ dependencies {
     compile files("lib/Mantle-1.7.10-0.3.2_deobf.jar")
     compile files("lib/ThaumicTinkerer-2.5-1.7.10-512_deobf.jar")
     compile files("lib/mystcraft-1.7.10-0.12.3.01_deobf.jar")
-    compile files("lib/Botania r1.7-237_deobf.jar")
+    compile files("lib/Botania r1.8-247_deobf.jar")
     compile files("lib/ThaumicExploration-1.7.10-1.1-53_deobf.jar")
     compile files("lib/extrautilities-1.2.12_deobf.jar")
 }
