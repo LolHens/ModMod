@@ -28,16 +28,14 @@ import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 import vazkii.botania.api.BotaniaAPI;
 import vazkii.botania.api.item.ISequentialBreaker;
+import vazkii.botania.api.mana.IManaGivingItem;
 import vazkii.botania.api.mana.IManaItem;
 import vazkii.botania.client.core.helper.IconHelper;
 import vazkii.botania.common.achievement.ModAchievements;
 import vazkii.botania.common.core.helper.ItemNBTHelper;
 import vazkii.botania.common.crafting.recipe.TerraPickTippingRecipe;
-import vazkii.botania.common.item.ItemSpark;
 import vazkii.botania.common.item.ItemTemperanceStone;
 import vazkii.botania.common.item.ModItems;
-import vazkii.botania.common.item.equipment.bauble.ItemAuraRing;
-import vazkii.botania.common.item.equipment.bauble.ItemGreaterAuraRing;
 import vazkii.botania.common.item.equipment.tool.ToolCommons;
 import vazkii.botania.common.item.equipment.tool.manasteel.ItemManasteelPick;
 import vazkii.botania.common.item.relic.ItemLokiRing;
@@ -81,7 +79,7 @@ public class ItemTerraPick extends ItemManasteelPick implements IManaItem, ISequ
     public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4) {
         String rankFormat = StatCollector.translateToLocal("botaniamisc.toolRank");
         String rank = StatCollector.translateToLocal("botania.rank" + getLevel(par1ItemStack));
-        par3List.add(String.format(rankFormat, new Object[]{rank}).replaceAll("&", "\u00a7"));
+        par3List.add(String.format(rankFormat, new Object[]{rank}).replaceAll("&", "§"));
         if (this.getMana(par1ItemStack) == 2147483647) {
             par3List.add(EnumChatFormatting.RED + StatCollector.translateToLocal("botaniamisc.getALife"));
         }
@@ -243,7 +241,7 @@ public class ItemTerraPick extends ItemManasteelPick implements IManaItem, ISequ
     }
 
     public boolean canReceiveManaFromItem(ItemStack stack, ItemStack otherStack) {
-        return !(otherStack.getItem() instanceof ItemSpark) && !(otherStack.getItem() instanceof ItemAuraRing) && !(otherStack.getItem() instanceof ItemGreaterAuraRing);
+        return !(otherStack.getItem() instanceof IManaGivingItem);
     }
 
     public boolean canExportManaToPool(ItemStack stack, TileEntity pool) {

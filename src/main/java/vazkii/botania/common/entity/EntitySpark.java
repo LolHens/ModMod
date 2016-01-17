@@ -29,6 +29,8 @@ import java.util.List;
 public class EntitySpark extends Entity implements ISparkEntity {
     private static final int TRANSFER_RATE = 1000;
     private static final String TAG_UPGRADE = "upgrade";
+    private static final String TAG_INVIS = "invis";
+    public static final int INVISIBILITY_DATA_WATCHER_KEY = 27;
     Set<ISparkEntity> transfers = Collections.newSetFromMap(new WeakHashMap());
     int removeTransferants = 2;
     boolean firstTick = false;
@@ -40,7 +42,9 @@ public class EntitySpark extends Entity implements ISparkEntity {
 
     protected void entityInit() {
         this.setSize(0.1F, 0.5F);
+        super.dataWatcher.addObject(27, Integer.valueOf(0));
         super.dataWatcher.addObject(28, Integer.valueOf(0));
+        super.dataWatcher.setObjectWatched(27);
         super.dataWatcher.setObjectWatched(28);
     }
 
@@ -284,15 +288,27 @@ public class EntitySpark extends Entity implements ISparkEntity {
             }
         }
 
-        return false;
+        return this.doPhantomInk(stack);
+    }
+
+    public boolean doPhantomInk(ItemStack stack) {
+        if (stack != null && stack.getItem() == ModItems.phantomInk && !super.worldObj.isRemote) {
+            int invis = super.dataWatcher.getWatchableObjectInt(27);
+            super.dataWatcher.updateObject(27, Integer.valueOf(~invis & 1));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     protected void readEntityFromNBT(NBTTagCompound cmp) {
         this.setUpgrade(cmp.getInteger("upgrade"));
+        super.dataWatcher.updateObject(27, Integer.valueOf(cmp.getInteger("invis")));
     }
 
     protected void writeEntityToNBT(NBTTagCompound cmp) {
         cmp.setInteger("upgrade", this.getUpgrade());
+        cmp.setInteger("invis", super.dataWatcher.getWatchableObjectInt(27));
     }
 
     public void setDead() {
