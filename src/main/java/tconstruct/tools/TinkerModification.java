@@ -65,7 +65,7 @@ public class TinkerModification {
 
         ModifyBuilder.registerModifier(new ModPrecision(new ItemStack[]{
                 new ItemStack(Blocks.wool)
-        }));
+        }, 0.9f));
 
         ModifyBuilder.registerModifier(new ModFlightSpeed(new ItemStack[]{
                 new ItemStack(Items.slime_ball)
