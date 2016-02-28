@@ -109,7 +109,8 @@ public abstract class HarvestTool extends ToolCore {
     }
 
     private float getBreakSpeed(ItemStack stack, Block block, int meta, float originalBreakSpeed) {
-        if (ModPrecision.isPrecise(stack)) return Math.min(originalBreakSpeed, 0.9f);
+        float precision = ModPrecision.getPrecision(stack);
+        if (precision >= 0) return Math.min(originalBreakSpeed, precision);
 
         return originalBreakSpeed;
     }

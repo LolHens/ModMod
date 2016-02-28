@@ -21,6 +21,7 @@ public class ModSneakDetector extends ItemModifier {
 
     public ModSneakDetector(ItemStack[] items, boolean inverted) {
         super(items, -1, "SneakDetector");
+
         this.inverted = inverted;
     }
 
